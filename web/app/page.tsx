@@ -22,17 +22,29 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative pt-[clamp(64px,12vw,120px)] pb-[clamp(48px,10vw,80px)] px-[clamp(16px,5vw,48px)] bg-slate-50 border-b border-slate-200">
-        <div className="max-w-[clamp(320px,95vw,1000px)] mx-auto text-center">
-          <h1 className="text-[clamp(32px,6vw,64px)] font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
-            Construction materials, <br />
-            <span className="text-slate-400">delivered locally.</span>
+      <section className="relative pt-[clamp(80px,15vw,160px)] pb-[clamp(64px,12vw,120px)] px-[clamp(16px,5vw,48px)] overflow-hidden">
+        {/* Background Gradients */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-slate-100 rounded-full blur-[120px] opacity-50 animate-pulse"></div>
+          <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-blue-50 rounded-full blur-[100px] opacity-40"></div>
+        </div>
+
+        <div className="max-w-[clamp(320px,95vw,1100px)] mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <span>🚀</span>
+            <span>Now Live in Major Pincodes</span>
+          </div>
+          
+          <h1 className="text-[clamp(36px,7vw,80px)] font-black text-slate-900 tracking-tight leading-[0.95] mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            Build smarter with <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-400">hyperlocal pricing.</span>
           </h1>
-          <p className="text-[clamp(16px,2vw,20px)] text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Multiplying Brics helps you find the best prices for building materials in your pincode. Verified vendors, instant quotes.
+          
+          <p className="text-[clamp(16px,2vw,22px)] text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+            Multiplying Brics connects you directly with verified construction material vendors. No middlemen, no hidden costs.
           </p>
 
-          <div className="max-w-[800px] mx-auto">
+          <div className="max-w-[800px] mx-auto shadow-2xl shadow-slate-200/50 rounded-[40px] animate-in fade-in zoom-in duration-1000 delay-300">
             <SearchBar materials={materials} />
           </div>
         </div>
