@@ -63,26 +63,45 @@ export default async function HomePage() {
             </Link>
           </header>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(12px,2vw,24px)]">
-            {categories.map((category) => (
-              <Link 
-                key={category.id} 
-                href={`/category/${category.slug}`}
-                className="group relative aspect-square bg-slate-50 border border-slate-200 rounded-[clamp(16px,2vw,24px)] p-[clamp(16px,3vw,32px)] flex flex-col justify-end overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all hover:-translate-y-1"
-              >
-                <div className="absolute top-[clamp(16px,3vw,32px)] right-[clamp(16px,3vw,32px)] opacity-10 group-hover:opacity-20 transition-opacity">
-                  <span className="text-[clamp(40px,5vw,64px)]">🏗️</span>
-                </div>
-                <div>
-                  <h3 className="text-[clamp(16px,2vw,20px)] font-black text-slate-900 leading-tight mb-1">
-                    {category.name}
-                  </h3>
-                  <p className="text-[clamp(12px,1.2vw,13px)] text-slate-400 font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                    Explore items
-                  </p>
-                </div>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[clamp(16px,2vw,32px)]">
+            {categories.map((category) => {
+              const categoryImages: Record<string, string> = {
+                'cement-concrete': '/images/cement.png',
+                'steel-metal': '/images/steel.png',
+                'bricks-blocks': '/images/bricks.png',
+                'sand-aggregates': '/images/sand.png'
+              }
+              const imageUrl = categoryImages[category.slug] || 'https://images.unsplash.com/photo-1541913056074-43f380017cf3?q=80&w=2070&auto=format&fit=crop'
+
+              return (
+                <Link 
+                  key={category.id} 
+                  href={`/category/${category.slug}`}
+                  className="group relative aspect-[4/5] bg-slate-900 rounded-[32px] overflow-hidden hover:shadow-2xl transition-all hover:-translate-y-2"
+                >
+                  {/* Category Image */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-110 transition-transform duration-700"
+                    style={{ backgroundImage: `url(${imageUrl})` }}
+                  />
+                  
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  
+                  {/* Content */}
+                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                    <h3 className="text-xl font-black text-white leading-tight mb-2 group-hover:text-amber-400 transition-colors">
+                      {category.name}
+                    </h3>
+                    <div className="h-0 group-hover:h-8 opacity-0 group-hover:opacity-100 transition-all duration-300 overflow-hidden">
+                      <p className="text-sm font-bold text-slate-300 flex items-center gap-2">
+                        Browse items <span>→</span>
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -10,26 +11,32 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = createClient()
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/search-listings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
-      },
-      body: JSON.stringify({ material_id, pincode }),
+    // 1. Try exact pincode match
+    let { data: listings, error } = await supabase
+      .from('listings')
+      .select(`
+        *,
+        vendor:vendors(*),
+        material:materials(*)
+      `)
+      .eq('material_id', material_id)
+      .eq('pincode', pincode)
+      .eq('in_stock', true)
+      .eq('vendors.status', 'approved') // Only show approved vendors
+      .order('price_per_unit', { ascending: true })
+
+    if (error) throw error
+
+    // 2. Return results (even if empty, the frontend handles empty state)
+    return NextResponse.json({ 
+      listings: listings || [],
+      fallback_pincode: null,
+      fallback_area: null
     })
-
-    const data = await response.json()
-    
-    if (!response.ok) {
-      return NextResponse.json({ error: data.error || 'Search failed' }, { status: response.status })
-    }
-
-    return NextResponse.json(data)
   } catch (error: any) {
+    console.error('Search API Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
