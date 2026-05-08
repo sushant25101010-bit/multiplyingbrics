@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SearchResult, Listing } from '@/lib/types'
 
 function SearchContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const materialId = searchParams.get('material_id')
   const pincode = searchParams.get('pincode')
