@@ -77,12 +77,24 @@ export default function SearchScreen() {
 
     setLoading(true);
     try {
-      // 1. Perform Search
-      const { data, error } = await supabase.functions.invoke('search-listings', {
-        body: { material_id: selectedMaterial.id, pincode },
+      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/search-listings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({ material_id: selectedMaterial.id, pincode }),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
       setResults(data);
 
       // 2. Save to History
@@ -142,7 +154,7 @@ export default function SearchScreen() {
             </TouchableOpacity>
           </View>
           <Text style={styles.location}>📍 {item.pincode}</Text>
-        </div>
+        </View>
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>PRICE</Text>
           <Text style={styles.price}>₹{item.price_per_unit}</Text>

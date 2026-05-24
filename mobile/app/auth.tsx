@@ -30,12 +30,22 @@ export default function AuthScreen() {
     try {
       const fullPhone = `+91${phone}`;
       
-      // Call the Supabase Edge Function directly
-      const { error } = await supabase.functions.invoke('send-otp', {
-        body: { phone: fullPhone },
+      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({ phone: fullPhone }),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
 
       setStep('otp');
     } catch (error: any) {

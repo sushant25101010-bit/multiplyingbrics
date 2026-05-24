@@ -31,9 +31,9 @@ export default function HomeScreen() {
               style={styles.input}
               placeholderTextColor="#cbd5e1"
             />
-          </div>
+          </View>
           <View style={styles.divider} />
-          <div style={styles.inputGroup}>
+          <View style={styles.inputGroup}>
             <Text style={styles.label}>PINCODE</Text>
             <TextInput 
               placeholder="Enter 6-digit pincode" 
@@ -41,7 +41,7 @@ export default function HomeScreen() {
               keyboardType="number-pad"
               placeholderTextColor="#cbd5e1"
             />
-          </div>
+          </View>
           <TouchableOpacity style={styles.searchButton}>
             <Text style={styles.searchButtonText}>Search Prices</Text>
           </TouchableOpacity>
