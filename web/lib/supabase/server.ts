@@ -9,8 +9,35 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
+        get(name: string) {
+          let val = cookieStore.get(name)?.value
+          if (val && val.startsWith('"') && val.endsWith('"')) {
+            val = val.slice(1, -1)
+          }
+          return val
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            // Server Component ignore
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            // Server Component ignore
+          }
+        },
         getAll() {
-          return cookieStore.getAll()
+          return cookieStore.getAll().map(cookie => {
+            let val = cookie.value
+            if (val.startsWith('"') && val.endsWith('"')) {
+              val = val.slice(1, -1)
+            }
+            return { name: cookie.name, value: val }
+          })
         },
         setAll(cookiesToSet) {
           try {

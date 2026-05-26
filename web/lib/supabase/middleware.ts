@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
@@ -11,8 +11,35 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
+        get(name: string) {
+          let val = request.cookies.get(name)?.value
+          if (val && val.startsWith('"') && val.endsWith('"')) {
+            val = val.slice(1, -1)
+          }
+          return val
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({ name, value, ...options })
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          supabaseResponse.cookies.set({ name, value, ...options })
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({ name, value: '', ...options })
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          supabaseResponse.cookies.set({ name, value: '', ...options })
+        },
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll().map(cookie => {
+            let val = cookie.value
+            if (val.startsWith('"') && val.endsWith('"')) {
+              val = val.slice(1, -1)
+            }
+            return { name: cookie.name, value: val }
+          })
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
@@ -41,9 +68,9 @@ export async function updateSession(request: NextRequest) {
     path.startsWith('/vendor') || 
     path.startsWith('/admin')
 
-  // API routes validate auth internally using the session cookie, 
+  // API routes and OAuth callback route validate/exchange auth internally, 
   // we just let them pass through the middleware.
-  if (isApiRoute) {
+  if (isApiRoute || path === '/auth/callback') {
     return supabaseResponse
   }
 
