@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Header from "@/components/ui/Header";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], weight: ['400', '500', '600', '700', '800', '900'] });
 
@@ -13,16 +14,20 @@ export const metadata: Metadata = {
 
 async function getAuthUser() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('role, full_name')
-    .eq('id', user.id)
-    .single()
-    
-  return profile ? { ...profile } : null
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .single()
+      
+    return profile ? { ...profile } : null
+  } catch (e) {
+    return null
+  }
 }
 
 export default async function RootLayout({
@@ -33,10 +38,34 @@ export default async function RootLayout({
   const user = await getAuthUser()
 
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased text-slate-900`}>
-        <Header user={user as any} />
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem('theme');
+                  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  const theme = savedTheme || systemTheme;
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })()
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.className} antialiased bg-white dark:bg-[#030712] text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col`}>
+        <ThemeProvider>
+          <Header user={user as any} />
+          <div className="flex-grow">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -4,6 +4,8 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SearchResult, Listing } from '@/lib/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Star, MapPin, Mail, ArrowLeft, ArrowRight, Loader2, Sparkles, Building, Layers } from 'lucide-react'
 
 function SearchContent() {
   const router = useRouter()
@@ -17,6 +19,7 @@ function SearchContent() {
   const [error, setError] = useState<string | null>(null)
 
   const [savingId, setSavingId] = useState<string | null>(null)
+  const [savedVendorIds, setSavedVendorIds] = useState<string[]>([])
   const [enquiryListing, setEnquiryListing] = useState<Listing | null>(null)
   const [enquiryMsg, setEnquiryMsg] = useState('')
 
@@ -57,7 +60,10 @@ function SearchContent() {
         router.push(`/auth?redirect=${window.location.pathname}${window.location.search}`)
         return
       }
-      if (res.ok) alert('Vendor saved!')
+      if (res.ok) {
+        setSavedVendorIds(prev => [...prev, vendorId])
+        alert('Vendor saved!')
+      }
     } catch (err) {
       console.error('Save failed', err)
     } finally {
@@ -97,17 +103,19 @@ function SearchContent() {
 
   if (loading && !enquiryListing) {
     return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-900"></div>
+      <div className="flex flex-col justify-center items-center h-[70vh] gap-4 bg-white dark:bg-[#030712]">
+        <Loader2 size={40} className="animate-spin text-amber-500" />
+        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Finding the best rates...</p>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="max-w-[clamp(320px,90vw,1200px)] mx-auto p-[clamp(16px,4vw,48px)]">
-        <div className="p-4 bg-red-50 text-red-700 rounded-lg">
-          {error}
+      <div className="max-w-4xl mx-auto p-6 sm:p-12 bg-white dark:bg-[#030712]">
+        <div className="p-6 bg-red-500/10 dark:bg-red-500/5 text-red-650 dark:text-red-400 rounded-2xl border border-red-500/20 flex flex-col gap-2">
+          <span className="font-bold text-lg">Search Error</span>
+          <span className="text-sm">{error}</span>
         </div>
       </div>
     )
@@ -115,118 +123,205 @@ function SearchContent() {
 
   if (!materialId || !pincode) {
     return (
-      <div className="max-w-[clamp(320px,90vw,1200px)] mx-auto p-[clamp(16px,4vw,48px)] text-center">
-        <h1 className="text-[clamp(24px,4vw,40px)] font-bold mb-4">Start your search</h1>
-        <p className="text-slate-600">Please provide a material and pincode to see prices.</p>
-        <Link href="/" className="inline-block mt-6 px-6 py-3 bg-slate-900 text-white rounded-lg font-semibold">
-          Back to Home
+      <div className="max-w-xl mx-auto p-8 sm:p-16 text-center bg-white dark:bg-[#030712] min-h-[50vh] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6">
+          <Layers className="text-amber-500" size={30} />
+        </div>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-3">Start your search</h1>
+        <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-8 text-sm sm:text-base leading-relaxed">
+          Please select a construction material and pincode on the home page to fetch live rates.
+        </p>
+        <Link 
+          href="/" 
+          className="px-6 py-3.5 bg-slate-950 hover:bg-slate-850 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold text-sm rounded-xl transition-all flex items-center gap-2 shadow-lg"
+        >
+          <ArrowLeft size={16} />
+          <span>Back to Home</span>
         </Link>
       </div>
     )
   }
 
   return (
-    <main className="max-w-[clamp(320px,95vw,1200px)] mx-auto p-[clamp(16px,4vw,48px)]">
+    <main className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 bg-white dark:bg-[#030712]">
       {/* Enquiry Modal */}
-      {enquiryListing && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-white w-full max-w-lg rounded-[32px] p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <h3 className="text-2xl font-black text-slate-900 mb-2">Send Enquiry</h3>
-            <p className="text-slate-500 mb-6">Contact {enquiryListing.vendor?.business_name} about {enquiryListing.material?.name}</p>
-            <form onSubmit={handleSendEnquiry} className="space-y-4">
-              <textarea 
-                required
-                value={enquiryMsg}
-                onChange={(e) => setEnquiryMsg(e.target.value)}
-                placeholder="Hi, I am interested in this material. Please share your availability and delivery terms."
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl min-h-[150px] outline-none focus:ring-4 focus:ring-slate-900/5 transition-all"
-              />
-              <div className="flex gap-4">
-                <button type="submit" className="flex-1 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800">
-                  Send Now
-                </button>
-                <button type="button" onClick={() => setEnquiryListing(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl">
-                  Cancel
-                </button>
-              </div>
-            </form>
+      <AnimatePresence>
+        {enquiryListing && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setEnquiryListing(null)}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", bounce: 0.15, duration: 0.3 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[28px] p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 z-10 relative"
+            >
+              <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-1.5 flex items-center gap-2">
+                <Mail className="text-amber-500" size={22} />
+                <span>Send Enquiry</span>
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                Contact <span className="font-bold text-slate-700 dark:text-slate-200">{enquiryListing.vendor?.business_name}</span> about {enquiryListing.material?.name}
+              </p>
+              
+              <form onSubmit={handleSendEnquiry} className="space-y-5">
+                <textarea 
+                  required
+                  value={enquiryMsg}
+                  onChange={(e) => setEnquiryMsg(e.target.value)}
+                  placeholder="Hi, I am interested in this material. Please share your availability, lead times, and shipping terms."
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl min-h-[160px] outline-none focus:ring-4 focus:ring-amber-550/10 dark:focus:ring-amber-400/5 text-slate-805 dark:text-slate-200 transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                />
+                
+                <div className="flex gap-4">
+                  <button 
+                    type="submit" 
+                    className="flex-grow py-3.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold rounded-xl text-sm transition-all"
+                  >
+                    Send Now
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setEnquiryListing(null)} 
+                    className="flex-grow py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-sm transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
-      <header className="mb-[clamp(24px,5vw,48px)]">
-        <h1 className="text-[clamp(20px,4vw,32px)] font-bold text-slate-900">
+      <header className="mb-10 sm:mb-14">
+        <Link 
+          href="/" 
+          className="group inline-flex items-center gap-1 text-slate-400 hover:text-slate-950 dark:hover:text-white font-bold text-xs uppercase tracking-wider mb-6 transition-colors"
+        >
+          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+          <span>Change search parameters</span>
+        </Link>
+
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white tracking-tight leading-tight">
           {materialName} prices in {pincode}
         </h1>
+
         {data?.fallback_pincode && (
-          <p className="mt-2 text-[clamp(14px,1.5vw,16px)] text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-100">
-            No exact matches for {pincode}. Showing results from nearby areas in {data.fallback_area}.
-          </p>
+          <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-2xl flex items-center gap-3">
+            <Sparkles className="text-amber-500 shrink-0" size={18} />
+            <p className="text-sm font-semibold leading-relaxed">
+              No exact matches in {pincode}. Showing results from nearby areas in <span className="font-extrabold">{data.fallback_area}</span>.
+            </p>
+          </div>
         )}
-        <p className="mt-2 text-slate-500 text-[clamp(14px,1.5vw,16px)]">
-          {data?.listings.length || 0} vendors found
+        <p className="mt-3 text-slate-400 dark:text-slate-500 text-sm font-bold tracking-wide uppercase">
+          {data?.listings.length || 0} vendors verified nearby
         </p>
       </header>
 
-      <div className="grid gap-[clamp(16px,3vw,24px)]">
-        {data?.listings.map((listing) => (
-          <div 
-            key={listing.id} 
-            className="flex flex-col p-[clamp(16px,3vw,32px)] bg-white border border-slate-200 rounded-[32px] hover:shadow-xl hover:shadow-slate-200/50 transition-all gap-6 relative overflow-hidden"
-          >
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-[clamp(18px,2.5vw,22px)] font-black text-slate-900">
-                    {listing.vendor?.business_name}
-                  </h2>
-                  <button 
-                    onClick={() => handleSave(listing.vendor_id)}
-                    disabled={savingId === listing.vendor_id}
-                    className="p-2 text-slate-300 hover:text-amber-500 transition-colors"
-                    aria-label="Save Vendor"
-                  >
-                    {savingId === listing.vendor_id ? '⌛' : '⭐'}
-                  </button>
+      {/* Grid container */}
+      <div className="grid gap-6">
+        {data?.listings.map((listing, idx) => {
+          const isSaved = savedVendorIds.includes(listing.vendor_id)
+          return (
+            <motion.div 
+              key={listing.id} 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05, duration: 0.3 }}
+              className="flex flex-col p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800/40 rounded-[28px] hover:shadow-xl dark:hover:shadow-slate-950/50 transition-all duration-300 gap-6 relative overflow-hidden"
+            >
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                
+                {/* Vendor details */}
+                <div className="flex-1 flex gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-200/50 dark:bg-slate-800/50 flex items-center justify-center shrink-0">
+                    <Building size={20} className="text-slate-500 dark:text-slate-400" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-3.5">
+                      <h2 className="text-lg sm:text-xl font-bold text-slate-950 dark:text-white leading-tight">
+                        {listing.vendor?.business_name}
+                      </h2>
+                      
+                      <motion.button 
+                        onClick={() => handleSave(listing.vendor_id)}
+                        disabled={savingId === listing.vendor_id || isSaved}
+                        className={`p-1.5 rounded-lg border transition-colors ${
+                          isSaved 
+                            ? 'text-amber-500 bg-amber-500/10 border-amber-500/20' 
+                            : 'text-slate-400 hover:text-amber-500 bg-slate-100/50 dark:bg-slate-800/50 hover:bg-amber-500/5 border-transparent'
+                        }`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        aria-label="Save Vendor"
+                      >
+                        {savingId === listing.vendor_id ? (
+                          <Loader2 size={16} className="animate-spin text-slate-400" />
+                        ) : (
+                          <Star size={16} fill={isSaved ? "currentColor" : "none"} />
+                        )}
+                      </motion.button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-slate-500 dark:text-slate-400 text-xs font-semibold">
+                      <span className="flex items-center gap-1">
+                        <MapPin size={12} className="text-slate-405 dark:text-slate-500" /> 
+                        <span>Pincode: {listing.pincode}</span>
+                      </span>
+                      <span className="text-slate-300 dark:text-slate-700">•</span>
+                      <span>Unit pricing: {listing.material?.unit}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-slate-500 text-[clamp(13px,1.5vw,15px)]">
-                  <span className="flex items-center gap-1 font-bold">
-                    📍 {listing.pincode}
+
+                {/* Price Tag */}
+                <div className="flex flex-col md:items-end bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-2xl px-5 py-3 md:py-2.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-0.5">
+                    Price per {listing.material?.unit}
                   </span>
-                  <span>•</span>
-                  <span>Unit: {listing.material?.unit}</span>
+                  <span className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white leading-none">
+                    ₹{listing.price_per_unit}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-col md:items-end">
-                <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Price per {listing.material?.unit}</span>
-                <span className="text-[clamp(28px,4vw,36px)] font-black text-slate-950 leading-none">
-                  ₹{listing.price_per_unit}
-                </span>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 border-t border-slate-200/50 dark:border-slate-800/40 pt-5">
+                <motion.button 
+                  onClick={() => setEnquiryListing(listing)}
+                  className="flex-1 min-h-[46px] px-5 py-2.5 bg-slate-950 hover:bg-slate-850 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                >
+                  <Mail size={16} />
+                  <span>Send Enquiry</span>
+                </motion.button>
+                
+                <Link 
+                  href={`/vendor/${listing.vendor_id}`}
+                  className="flex-1 min-h-[46px] px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5"
+                >
+                  <span>View Vendor Profile</span>
+                  <ArrowRight size={14} className="opacity-70" />
+                </Link>
               </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3 border-t border-slate-50 pt-6">
-              <button 
-                onClick={() => setEnquiryListing(listing)}
-                className="flex-1 min-h-[48px] px-6 py-3 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
-              >
-                <span>Send Enquiry</span>
-                <span>✉️</span>
-              </button>
-              <Link 
-                href={`/vendor/${listing.vendor_id}`}
-                className="flex-1 min-h-[48px] px-6 py-3 bg-slate-50 text-slate-900 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all flex items-center justify-center"
-              >
-                View Profile
-              </Link>
-            </div>
-          </div>
-        ))}
+            </motion.div>
+          )
+        })}
 
         {data?.listings.length === 0 && (
-          <div className="text-center py-24 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-            <p className="text-slate-500 text-[clamp(16px,2vw,20px)]">No vendors found for this material and location.</p>
+          <div className="text-center py-20 bg-slate-50/50 dark:bg-slate-900/20 rounded-[28px] border-2 border-dashed border-slate-200 dark:border-slate-800">
+            <p className="text-slate-500 dark:text-slate-400 font-bold text-base">
+              No verified vendors found for this material in {pincode} yet.
+            </p>
           </div>
         )}
       </div>
@@ -236,7 +331,12 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="flex flex-col justify-center items-center h-[70vh] gap-4 bg-white dark:bg-[#030712]">
+        <Loader2 size={40} className="animate-spin text-amber-500" />
+        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Loading parameters...</p>
+      </div>
+    }>
       <SearchContent />
     </Suspense>
   )
