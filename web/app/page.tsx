@@ -62,17 +62,17 @@ export default async function HomePage() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 sm:py-28 bg-slate-950 text-white relative overflow-hidden">
+      <section className="py-20 sm:py-28 bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-white border-t border-slate-100 dark:border-slate-900/60 relative overflow-hidden transition-all duration-300">
         {/* Subtle grid background on trust section */}
-        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]" />
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]" />
         
-        <div className="absolute bottom-[-150px] left-[50%] -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-amber-500/10 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-150px] left-[50%] -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-amber-500/10 dark:bg-amber-500/5 blur-[120px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-block px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 text-amber-400">
+          <div className="inline-block px-4 py-1.5 bg-slate-200/50 dark:bg-white/5 border border-slate-300/60 dark:border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6 text-amber-600 dark:text-amber-400">
             For Construction Professionals
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black mb-16 tracking-tight leading-tight max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-5xl font-black mb-16 tracking-tight leading-tight max-w-2xl mx-auto text-slate-950 dark:text-white">
             Why builders choose <br /> Multiplying Brics
           </h2>
           

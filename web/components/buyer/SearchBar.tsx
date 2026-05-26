@@ -33,10 +33,10 @@ export default function SearchBar({ materials }: SearchBarProps) {
     >
       {/* Material Selector */}
       <div 
-        className={`flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-200 ${
+        className={`flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-200 border ${
           focusInput === 'material' 
-            ? 'bg-slate-50/80 dark:bg-slate-850/50 shadow-inner' 
-            : 'hover:bg-slate-50/40 dark:hover:bg-slate-850/20'
+            ? 'bg-slate-100/90 border-slate-200/80 dark:bg-slate-800/80 dark:border-slate-700/60 shadow-sm dark:shadow-inner' 
+            : 'bg-transparent border-transparent hover:bg-slate-100/50 hover:border-slate-200/30 dark:hover:bg-slate-800/40 dark:hover:border-slate-700/20'
         }`}
       >
         <Package size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
@@ -66,10 +66,10 @@ export default function SearchBar({ materials }: SearchBarProps) {
 
       {/* Pincode Input */}
       <div 
-        className={`flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-200 ${
+        className={`flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-200 border ${
           focusInput === 'pincode' 
-            ? 'bg-slate-50/80 dark:bg-slate-850/50 shadow-inner' 
-            : 'hover:bg-slate-50/40 dark:hover:bg-slate-850/20'
+            ? 'bg-slate-100/90 border-slate-200/80 dark:bg-slate-800/80 dark:border-slate-700/60 shadow-sm dark:shadow-inner' 
+            : 'bg-transparent border-transparent hover:bg-slate-100/50 hover:border-slate-200/30 dark:hover:bg-slate-800/40 dark:hover:border-slate-700/20'
         }`}
       >
         <MapPin size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
@@ -91,13 +91,13 @@ export default function SearchBar({ materials }: SearchBarProps) {
       {/* Submit Button */}
       <motion.button
         type="submit"
-        className="px-8 min-h-[52px] bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 rounded-xl sm:rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-950/10 dark:shadow-white/5 shrink-0"
-        whileHover={{ scale: 1.02 }}
+        className="px-8 min-h-[52px] bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl sm:rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-amber-500/10 hover:shadow-lg hover:shadow-amber-500/25 shrink-0"
+        whileHover={{ scale: 1.02, y: -1 }}
         whileTap={{ scale: 0.98 }}
         aria-label="Search prices"
       >
         <span>Search</span>
-        <Search size={16} />
+        <Search size={16} strokeWidth={2.5} />
       </motion.button>
     </form>
   )

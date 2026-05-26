@@ -52,16 +52,16 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
           >
             <Link 
               href={`/category/${category.slug}`}
-              className="group relative flex flex-col justify-end aspect-[4/5] bg-slate-900 rounded-[32px] overflow-hidden shadow-md hover:shadow-xl dark:hover:shadow-slate-950/50 transition-all duration-300 border border-slate-100 dark:border-slate-800"
+              className="group relative flex flex-col justify-end aspect-[4/5] bg-slate-950 rounded-[32px] overflow-hidden shadow-md hover:shadow-[0_0_24px_rgba(245,158,11,0.15)] transition-all duration-300 border border-slate-200/60 dark:border-slate-800/80 hover:border-amber-500/40 dark:hover:border-amber-500/40"
             >
               {/* Category Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-65 dark:opacity-40 group-hover:scale-105 transition-transform duration-700"
+                className="absolute inset-0 bg-cover bg-center opacity-90 dark:opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out"
                 style={{ backgroundImage: `url(${imageUrl})` }}
               />
               
               {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent group-hover:from-slate-950/80 transition-all duration-350" />
               
               {/* Content */}
               <div className="relative p-6 sm:p-8 z-10">
