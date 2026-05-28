@@ -250,7 +250,7 @@ export default function AuthPage() {
                 transition={{ duration: 0.2 }}
               >
                 {/* First and Last Name Grid */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label htmlFor="firstName" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                       First Name
