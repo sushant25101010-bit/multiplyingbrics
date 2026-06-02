@@ -59,32 +59,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Signup failed. Please try again.' }, { status: 400 })
     }
 
-    // 2. Store user information in public.users table.
-    const { error: dbError } = await supabase
-      .from('users')
-      .upsert({
-        id: user.id,
-        email: email,
-        phone: formattedPhone,
-        full_name: fullName,
-        role: role
-      }, { onConflict: 'id' })
-
-    if (dbError) {
-      console.warn('Upsert on signup warning (likely RLS due to pending email verification):', dbError.message)
-    } else if (role === 'vendor') {
-      // 3. For vendors, automatically create entry in vendors table.
-      const { error: vendorError } = await supabase
-        .from('vendors')
-        .insert({
-          user_id: user.id,
-          business_name: businessName,
-          status: 'pending'
-        })
-      if (vendorError) {
-        console.warn('Failed to insert vendor profile during signup (likely RLS/pending verification):', vendorError.message)
-      }
-    }
+    // 2. Profile creation in public.users and public.vendors is handled during the first login
+    // in app/api/auth/login/route.ts to avoid RLS issues when email confirmation is required.
 
     const hasSession = !!data.session
 

@@ -10,11 +10,7 @@ export function createClient() {
     {
       cookies: {
         get(name: string) {
-          let val = cookieStore.get(name)?.value
-          if (val && val.startsWith('"') && val.endsWith('"')) {
-            val = val.slice(1, -1)
-          }
-          return val
+          return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
@@ -31,13 +27,7 @@ export function createClient() {
           }
         },
         getAll() {
-          return cookieStore.getAll().map(cookie => {
-            let val = cookie.value
-            if (val.startsWith('"') && val.endsWith('"')) {
-              val = val.slice(1, -1)
-            }
-            return { name: cookie.name, value: val }
-          })
+          return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
           try {

@@ -12,11 +12,7 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          let val = request.cookies.get(name)?.value
-          if (val && val.startsWith('"') && val.endsWith('"')) {
-            val = val.slice(1, -1)
-          }
-          return val
+          return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options })
@@ -33,13 +29,7 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse.cookies.set({ name, value: '', ...options })
         },
         getAll() {
-          return request.cookies.getAll().map(cookie => {
-            let val = cookie.value
-            if (val.startsWith('"') && val.endsWith('"')) {
-              val = val.slice(1, -1)
-            }
-            return { name: cookie.name, value: val }
-          })
+          return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))

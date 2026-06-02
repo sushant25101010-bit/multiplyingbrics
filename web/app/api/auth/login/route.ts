@@ -26,7 +26,34 @@ export async function POST(request: Request) {
       .eq('id', data.user.id)
       .single()
 
-    const role = profile?.role || 'buyer'
+    let role = profile?.role
+
+    // Profile creation fallback for first-time login
+    if (!profile) {
+      const metadata = data.user.user_metadata || {}
+      role = metadata.role || 'buyer'
+      
+      const fullName = metadata.full_name || 
+                       `${metadata.given_name || ''} ${metadata.family_name || ''}`.trim() ||
+                       data.user.email?.split('@')[0] || 
+                       'User'
+      
+      await supabase.from('users').upsert({
+        id: data.user.id,
+        email: data.user.email,
+        phone: metadata.phone || data.user.phone || null,
+        full_name: fullName,
+        role: role
+      }, { onConflict: 'id' })
+
+      if (role === 'vendor' && metadata.business_name) {
+        await supabase.from('vendors').upsert({
+          user_id: data.user.id,
+          business_name: metadata.business_name,
+          status: 'pending'
+        }, { onConflict: 'user_id' })
+      }
+    }
 
     return NextResponse.json({ success: true, user: data.user, role })
   } catch (error: any) {
