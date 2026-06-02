@@ -2,14 +2,27 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Material, Listing } from '@/lib/types'
+import { Material, Listing, Category } from '@/lib/types'
+
+const categoryImages: Record<string, string> = {
+  'cement-concrete': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80',
+  'bricks-blocks': 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=80',
+  'steel-metal': 'https://images.unsplash.com/photo-1532509774739-ce311542f5bf?w=800&q=80',
+  'sand': 'https://images.unsplash.com/photo-1621274403997-36e78848dcf3?w=800&q=80',
+  'tiles': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+  'paint': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800&q=80',
+  'electrical': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80',
+  'plumbing': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800&q=80',
+}
 
 function EditListingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const listingId = searchParams.get('id')
 
+  const [categories, setCategories] = useState<Category[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,9 +38,14 @@ function EditListingContent() {
   useEffect(() => {
     async function init() {
       try {
-        // 1. Fetch materials for dropdown
-        const matRes = await fetch('/api/materials')
+        const [catRes, matRes] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/materials')
+        ])
+        const catData = await catRes.json()
         const matData = await matRes.json()
+        
+        setCategories(catData)
         setMaterials(matData)
 
         // 2. Fetch listing if editing
@@ -36,6 +54,11 @@ function EditListingContent() {
           const listings: Listing[] = await res.json()
           const item = listings.find(l => l.id === listingId)
           if (item) {
+            const material = matData.find((m: any) => m.id === item.material_id)
+            if (material) {
+              setSelectedCategory(material.category_id)
+            }
+            
             setFormData({
               material_id: item.material_id,
               pincode: item.pincode,
@@ -103,20 +126,52 @@ function EditListingContent() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Material Type</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Category</label>
           <select
-            value={formData.material_id}
-            onChange={(e) => setFormData({ ...formData, material_id: e.target.value })}
+            value={selectedCategory}
+            onChange={(e) => {
+              setSelectedCategory(e.target.value)
+              setFormData({ ...formData, material_id: '' })
+            }}
             className="w-full px-4 py-4 min-h-[48px] bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all disabled:opacity-50"
             required
-            disabled={!!listingId} // Cannot change material after creation
+            disabled={!!listingId}
           >
-            <option value="" disabled>Select a material...</option>
-            {materials.map(m => (
-              <option key={m.id} value={m.id}>{m.name} ({m.unit})</option>
+            <option value="" disabled>Select a category...</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
+
+          {selectedCategory && (
+            <div className="mt-4 rounded-xl overflow-hidden h-32 w-full relative border border-slate-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={categoryImages[categories.find(c => c.id === selectedCategory)?.slug || ''] || 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80'} 
+                alt="Category Thumbnail" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
         </div>
+
+        {selectedCategory && (
+          <div className="space-y-2">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Material Type</label>
+            <select
+              value={formData.material_id}
+              onChange={(e) => setFormData({ ...formData, material_id: e.target.value })}
+              className="w-full px-4 py-4 min-h-[48px] bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all disabled:opacity-50"
+              required
+              disabled={!!listingId} // Cannot change material after creation
+            >
+              <option value="" disabled>Select a material...</option>
+              {materials.filter(m => m.category_id === selectedCategory).map(m => (
+                <option key={m.id} value={m.id}>{m.name} ({m.unit})</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">Target Pincode</label>

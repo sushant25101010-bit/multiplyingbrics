@@ -14,12 +14,17 @@ export async function GET(request: Request) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   try {
-    // 2. Fetch vendors with documents
-    const { data: vendors, error } = await supabase
+    // 2. Fetch vendors with documents and listings
+    let query = supabase
       .from('vendors')
-      .select('*, documents(*), owner:users(phone, email, full_name)')
-      .eq('status', status)
-      .order('created_at', { ascending: true })
+      .select('*, documents(*), owner:users(phone, email, full_name), listings(*, material:materials(*))')
+      .order('created_at', { ascending: false })
+
+    if (status !== 'all') {
+      query = query.eq('status', status)
+    }
+
+    const { data: vendors, error } = await query
 
     if (error) throw error
     return NextResponse.json(vendors)

@@ -32,13 +32,7 @@ export async function GET(request: Request) {
           role: role
         }, { onConflict: 'id' })
 
-        if (role === 'vendor' && businessName) {
-          await supabase.from('vendors').upsert({
-            user_id: user.id,
-            business_name: businessName,
-            status: 'pending'
-          }, { onConflict: 'user_id' })
-        }
+        // Removed vendor upsert to enforce manual onboarding
       }
 
       const forwardedHost = request.headers.get('x-forwarded-host')

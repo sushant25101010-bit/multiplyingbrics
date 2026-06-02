@@ -6,12 +6,25 @@ import { Listing } from '@/lib/types'
 
 export default function ManageListings() {
   const [listings, setListings] = useState<Listing[]>([])
+  const [vendorStatus, setVendorStatus] = useState<string>('pending')
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const fetchListings = async () => {
     try {
+      const statusRes = await fetch('/api/vendor/dashboard')
+      if (statusRes.status === 404) {
+        window.location.href = '/vendor/register'
+        return
+      }
+      const statusData = await statusRes.json()
+      if (statusRes.ok) setVendorStatus(statusData.vendor_status)
+
       const res = await fetch('/api/vendor/listings')
+      if (res.status === 404) {
+        window.location.href = '/vendor/register'
+        return
+      }
       const data = await res.json()
       if (res.ok) setListings(data)
     } catch (err) {
@@ -26,6 +39,7 @@ export default function ManageListings() {
   }, [])
 
   const handleDelete = async (id: string) => {
+    if (vendorStatus !== 'approved') return
     if (!confirm('Are you sure you want to delete this listing?')) return
     setDeletingId(id)
     try {
@@ -39,6 +53,7 @@ export default function ManageListings() {
   }
 
   const toggleStock = async (id: string, currentStock: boolean) => {
+    if (vendorStatus !== 'approved') return
     try {
       await fetch(`/api/vendor/listings/${id}`, {
         method: 'PATCH',
@@ -59,13 +74,25 @@ export default function ManageListings() {
           <h1 className="text-[clamp(24px,4vw,36px)] font-bold text-slate-900">Manage Listings</h1>
           <p className="text-slate-500 mt-1">Control your pricing per material and pincode</p>
         </div>
-        <Link 
-          href="/vendor/listings/edit" 
-          className="px-6 py-3 bg-slate-900 text-white rounded-lg font-bold min-h-[48px] flex items-center"
-        >
-          Add New Listing
-        </Link>
+        {vendorStatus === 'approved' ? (
+          <Link 
+            href="/vendor/listings/edit" 
+            className="px-6 py-3 bg-slate-900 text-white rounded-lg font-bold min-h-[48px] flex items-center"
+          >
+            Add New Listing
+          </Link>
+        ) : (
+          <div className="px-6 py-3 bg-slate-100 text-slate-500 rounded-lg font-bold min-h-[48px] flex items-center cursor-not-allowed">
+            Approval Required
+          </div>
+        )}
       </header>
+
+      {vendorStatus !== 'approved' && (
+        <div className="mb-8 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl font-medium">
+          Selling functionality is disabled because your account is currently under review.
+        </div>
+      )}
 
       <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
         <table className="w-full text-left border-collapse">
@@ -92,7 +119,10 @@ export default function ManageListings() {
                 <td className="p-4">
                   <button 
                     onClick={() => toggleStock(item.id, item.in_stock)}
+                    disabled={vendorStatus !== 'approved'}
                     className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                      vendorStatus !== 'approved' ? 'opacity-50 cursor-not-allowed' : ''
+                    } ${
                       item.in_stock ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'
                     }`}
                   >
@@ -101,16 +131,20 @@ export default function ManageListings() {
                 </td>
                 <td className="p-4">
                   <div className="flex gap-2">
-                    <Link 
-                      href={`/vendor/listings/edit?id=${item.id}`}
-                      className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
-                      aria-label="Edit"
-                    >
-                      ✏️
-                    </Link>
+                    {vendorStatus === 'approved' ? (
+                      <Link 
+                        href={`/vendor/listings/edit?id=${item.id}`}
+                        className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        aria-label="Edit"
+                      >
+                        ✏️
+                      </Link>
+                    ) : (
+                      <span className="p-2 text-slate-300 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-not-allowed">✏️</span>
+                    )}
                     <button 
                       onClick={() => handleDelete(item.id)}
-                      disabled={deletingId === item.id}
+                      disabled={deletingId === item.id || vendorStatus !== 'approved'}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center disabled:opacity-50"
                       aria-label="Delete"
                     >

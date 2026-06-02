@@ -36,6 +36,13 @@ export default function Header({ user }: HeaderProps) {
     return () => window.removeEventListener('mb-cart-changed', updateCartCount)
   }, [])
 
+  const handleLogout = async () => {
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.href = '/auth'
+  }
+
   const navLinks = [
     { name: 'Marketplace', href: '/' },
     { name: 'Search', href: '/search' },
@@ -136,16 +143,24 @@ export default function Header({ user }: HeaderProps) {
           </Link>
 
           {/* Account Button (Desktop) */}
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex items-center gap-3">
             {user ? (
-              <Link 
-                href={currentAccountLink.href}
-                className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2 shadow-lg shadow-slate-900/10 dark:shadow-white/5"
-              >
-                <UserIcon size={16} />
-                <span>{currentAccountLink.name}</span>
-                <ArrowRight size={14} className="opacity-70 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+              <>
+                <Link 
+                  href={currentAccountLink.href}
+                  className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2 shadow-lg shadow-slate-900/10 dark:shadow-white/5"
+                >
+                  <UserIcon size={16} />
+                  <span>{currentAccountLink.name}</span>
+                  <ArrowRight size={14} className="opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2.5 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-xl text-sm font-bold transition-colors"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <Link 
                 href="/auth"
@@ -222,17 +237,25 @@ export default function Header({ user }: HeaderProps) {
 
               {/* Login/Account for Mobile */}
               {user ? (
-                <Link 
-                  href={currentAccountLink.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between w-full px-4 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-base font-bold"
-                >
-                  <span className="flex items-center gap-2">
-                    <UserIcon size={18} />
-                    <span>{currentAccountLink.name}</span>
-                  </span>
-                  <ArrowRight size={16} />
-                </Link>
+                <>
+                  <Link 
+                    href={currentAccountLink.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between w-full px-4 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-base font-bold"
+                  >
+                    <span className="flex items-center gap-2">
+                      <UserIcon size={18} />
+                      <span>{currentAccountLink.name}</span>
+                    </span>
+                    <ArrowRight size={16} />
+                  </Link>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                    className="flex items-center justify-center w-full px-4 py-3 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-xl text-base font-bold mt-2"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
                 <Link 
                   href="/auth"

@@ -46,13 +46,7 @@ export async function POST(request: Request) {
         role: role
       }, { onConflict: 'id' })
 
-      if (role === 'vendor' && metadata.business_name) {
-        await supabase.from('vendors').upsert({
-          user_id: data.user.id,
-          business_name: metadata.business_name,
-          status: 'pending'
-        }, { onConflict: 'user_id' })
-      }
+      // Removed vendor upsert to enforce manual onboarding
     }
 
     return NextResponse.json({ success: true, user: data.user, role })

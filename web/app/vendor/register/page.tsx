@@ -37,6 +37,13 @@ export default function VendorRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Mandatory GST validation
+    if (!formData.gst_number && !documents.gst) {
+      setError('You must provide either a GST Number or upload a GST Certificate to proceed.')
+      return
+    }
+
     setLoading(true)
     setError(null)
 

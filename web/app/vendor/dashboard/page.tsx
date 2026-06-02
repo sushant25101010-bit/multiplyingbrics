@@ -20,6 +20,10 @@ export default function VendorDashboard() {
     async function fetchDashboard() {
       try {
         const res = await fetch('/api/vendor/dashboard')
+        if (res.status === 404) {
+          window.location.href = '/vendor/register'
+          return
+        }
         const json = await res.json()
         if (res.ok) setData(json)
       } catch (err) {
@@ -52,7 +56,7 @@ export default function VendorDashboard() {
       {data?.vendor_status === 'pending' && (
         <div className="mb-8 p-6 bg-slate-50 border border-slate-200 rounded-xl">
           <h2 className="text-xl font-bold text-slate-900 mb-2">Account under review</h2>
-          <p className="text-slate-600">Your application is being verified by our team. You can explore the dashboard, but listings will go live once you are approved.</p>
+          <p className="text-slate-600">Your vendor account is currently under review. Our team is verifying your GST and business information. You will be notified once your account has been approved.</p>
         </div>
       )}
 
