@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SearchResult, Listing } from '@/lib/types'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, MapPin, Mail, ArrowLeft, ArrowRight, Loader2, Sparkles, Building, Layers } from 'lucide-react'
+import { Star, MapPin, Mail, ArrowLeft, ArrowRight, Loader2, Sparkles, Building, Layers, ShoppingCart } from 'lucide-react'
 
 function SearchContent() {
   const router = useRouter()
@@ -22,6 +22,46 @@ function SearchContent() {
   const [savedVendorIds, setSavedVendorIds] = useState<string[]>([])
   const [enquiryListing, setEnquiryListing] = useState<Listing | null>(null)
   const [enquiryMsg, setEnquiryMsg] = useState('')
+  
+  const [cartIds, setCartIds] = useState<string[]>([])
+
+  useEffect(() => {
+    const loadCart = () => {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem('mb-cart') || '[]')
+        setCartIds(savedCart.map((item: any) => item.listingId))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    loadCart()
+    window.addEventListener('mb-cart-changed', loadCart)
+    return () => window.removeEventListener('mb-cart-changed', loadCart)
+  }, [])
+
+  const handleCartAction = (listing: Listing) => {
+    try {
+      const savedCart = JSON.parse(localStorage.getItem('mb-cart') || '[]')
+      const index = savedCart.findIndex((item: any) => item.listingId === listing.id)
+      
+      if (index > -1) {
+        savedCart.splice(index, 1)
+        alert('Removed from cart!')
+      } else {
+        savedCart.push({
+          listingId: listing.id,
+          listing,
+          quantity: 1
+        })
+        alert('Added to cart!')
+      }
+      
+      localStorage.setItem('mb-cart', JSON.stringify(savedCart))
+      window.dispatchEvent(new Event('mb-cart-changed'))
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   useEffect(() => {
     async function fetchResults() {
@@ -294,10 +334,24 @@ function SearchContent() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 border-t border-slate-200/50 dark:border-slate-800/40 pt-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-200/50 dark:border-slate-800/40 pt-5">
+                <motion.button 
+                  onClick={() => handleCartAction(listing)}
+                  className={`min-h-[46px] px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm ${
+                    cartIds.includes(listing.id)
+                      ? 'bg-red-500 hover:bg-red-650 text-white' 
+                      : 'bg-amber-500 hover:bg-amber-600 text-slate-950 dark:bg-amber-500 dark:hover:bg-amber-400'
+                  }`}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                >
+                  <ShoppingCart size={16} />
+                  <span>{cartIds.includes(listing.id) ? 'Remove' : 'Add to Cart'}</span>
+                </motion.button>
+
                 <motion.button 
                   onClick={() => setEnquiryListing(listing)}
-                  className="flex-1 min-h-[46px] px-5 py-2.5 bg-slate-950 hover:bg-slate-850 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md"
+                  className="min-h-[46px] px-4 py-2.5 bg-slate-950 hover:bg-slate-850 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                 >
@@ -307,9 +361,9 @@ function SearchContent() {
                 
                 <Link 
                   href={`/vendor/${listing.vendor_id}`}
-                  className="flex-1 min-h-[46px] px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5"
+                  className="min-h-[46px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5"
                 >
-                  <span>View Vendor Profile</span>
+                  <span>Vendor Profile</span>
                   <ArrowRight size={14} className="opacity-70" />
                 </Link>
               </div>

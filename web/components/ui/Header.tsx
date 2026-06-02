@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { UserRole } from '@/lib/types'
 import { useTheme } from '@/components/ui/theme-provider'
-import { Sun, Moon, Menu, X, ArrowRight, User as UserIcon } from 'lucide-react'
+import { Sun, Moon, Menu, X, ArrowRight, User as UserIcon, ShoppingCart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface HeaderProps {
@@ -20,6 +20,21 @@ export default function Header({ user }: HeaderProps) {
   const { theme, toggleTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const role = user?.role || 'buyer'
+  const [cartCount, setCartCount] = useState(0)
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const cart = JSON.parse(localStorage.getItem('mb-cart') || '[]')
+        setCartCount(cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    updateCartCount()
+    window.addEventListener('mb-cart-changed', updateCartCount)
+    return () => window.removeEventListener('mb-cart-changed', updateCartCount)
+  }, [])
 
   const navLinks = [
     { name: 'Marketplace', href: '/' },
@@ -106,6 +121,20 @@ export default function Header({ user }: HeaderProps) {
             </AnimatePresence>
           </motion.button>
 
+          {/* Cart Button (Desktop) */}
+          <Link
+            href="/cart"
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors relative flex items-center justify-center"
+            aria-label="View Cart"
+          >
+            <ShoppingCart size={18} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-amber-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
           {/* Account Button (Desktop) */}
           <div className="hidden sm:block">
             {user ? (
@@ -168,6 +197,26 @@ export default function Header({ user }: HeaderProps) {
                   </Link>
                 )
               })}
+
+              <Link 
+                href="/cart"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-base font-bold transition-colors ${
+                  pathname === '/cart'
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                    : 'text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <ShoppingCart size={18} />
+                  <span>Cart</span>
+                </span>
+                {cartCount > 0 && (
+                  <span className="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-xs font-black">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
               
               <hr className="border-slate-100 dark:border-slate-800 my-2" />
 

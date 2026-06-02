@@ -20,7 +20,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    return NextResponse.json({ success: true, user: data.user })
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    const role = profile?.role || 'buyer'
+
+    return NextResponse.json({ success: true, user: data.user, role })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

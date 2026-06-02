@@ -5,10 +5,22 @@ export async function POST(request: Request) {
   const supabase = createClient()
 
   try {
-    const { firstName, lastName, phone, email, password } = await request.json()
+    const { role, businessName, adminName, phone, email, password, confirmPassword } = await request.json()
 
-    if (!firstName || !lastName || !phone || !email || !password) {
+    if (!email || !phone || !password || !confirmPassword || !role) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
+    }
+
+    if (password !== confirmPassword) {
+      return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 })
+    }
+
+    if (role === 'vendor' && !businessName) {
+      return NextResponse.json({ error: 'Business name is required for vendor signup' }, { status: 400 })
+    }
+
+    if (role === 'admin' && !adminName) {
+      return NextResponse.json({ error: 'Admin name is required for admin signup' }, { status: 400 })
     }
 
     const cleanPhone = phone.replace(/\D/g, '')
@@ -17,7 +29,12 @@ export async function POST(request: Request) {
     }
     const formattedPhone = `+91${cleanPhone}`
 
-    const fullName = `${firstName.trim()} ${lastName.trim()}`
+    let fullName = 'User'
+    if (role === 'vendor') {
+      fullName = businessName.trim()
+    } else if (role === 'admin') {
+      fullName = adminName.trim()
+    }
 
     // 1. Sign up the user in Supabase Auth
     const { data, error } = await supabase.auth.signUp({
@@ -27,6 +44,8 @@ export async function POST(request: Request) {
         data: {
           phone: formattedPhone,
           full_name: fullName,
+          role,
+          business_name: role === 'vendor' ? businessName : undefined,
         }
       }
     })
@@ -41,9 +60,6 @@ export async function POST(request: Request) {
     }
 
     // 2. Store user information in public.users table.
-    // If auto-confirm is enabled, this session is active. If email verification is enabled, 
-    // we still try to upsert since the auth.users entry was created. If RLS fails because
-    // the user is not authenticated yet, we can catch it. The callback handler will also upsert.
     const { error: dbError } = await supabase
       .from('users')
       .upsert({
@@ -51,13 +67,23 @@ export async function POST(request: Request) {
         email: email,
         phone: formattedPhone,
         full_name: fullName,
-        role: 'buyer' // default role
+        role: role
       }, { onConflict: 'id' })
 
     if (dbError) {
       console.warn('Upsert on signup warning (likely RLS due to pending email verification):', dbError.message)
-      // We don't fail signup if they just need to confirm email, because their user record was created in auth.users,
-      // and they will be verified and upserted upon clicking the confirmation link.
+    } else if (role === 'vendor') {
+      // 3. For vendors, automatically create entry in vendors table.
+      const { error: vendorError } = await supabase
+        .from('vendors')
+        .insert({
+          user_id: user.id,
+          business_name: businessName,
+          status: 'pending'
+        })
+      if (vendorError) {
+        console.warn('Failed to insert vendor profile during signup (likely RLS/pending verification):', vendorError.message)
+      }
     }
 
     const hasSession = !!data.session

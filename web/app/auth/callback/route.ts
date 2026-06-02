@@ -20,14 +20,25 @@ export async function GET(request: Request) {
                          user.email?.split('@')[0] || 
                          'Google User'
 
+        const role = user.user_metadata?.role || 'buyer'
+        const businessName = user.user_metadata?.business_name
+
         // Upsert user profile into public.users.
         await supabase.from('users').upsert({
           id: user.id,
           email: user.email,
           phone: user.phone || user.user_metadata?.phone || null,
           full_name: fullName,
-          role: 'buyer'
+          role: role
         }, { onConflict: 'id' })
+
+        if (role === 'vendor' && businessName) {
+          await supabase.from('vendors').upsert({
+            user_id: user.id,
+            business_name: businessName,
+            status: 'pending'
+          }, { onConflict: 'user_id' })
+        }
       }
 
       const forwardedHost = request.headers.get('x-forwarded-host')
