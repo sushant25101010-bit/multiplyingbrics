@@ -56,7 +56,7 @@ export default function BuyerAccountPage() {
           </p>
         </div>
         <div className="inline-flex items-center gap-2 px-4.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-xs uppercase tracking-wider self-start sm:self-auto">
-          <span>Buyer Account</span>
+          <span>{data.user.role === 'buyer' ? 'User Account' : data.user.role === 'vendor' ? 'Vendor Account' : 'Admin Account'}</span>
         </div>
       </header>
 
