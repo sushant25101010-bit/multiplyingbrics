@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') || '/'
+  
+  const cookieStore = cookies()
+  const nextCookie = cookieStore.get('auth_next')?.value
+  const roleCookie = cookieStore.get('auth_role')?.value
+  
+  const next = nextCookie ? decodeURIComponent(nextCookie) : '/'
 
   if (code) {
     const supabase = createClient()
@@ -22,7 +28,7 @@ export async function GET(request: Request) {
                          user.email?.split('@')[0] || 
                          'Google User'
 
-        const urlRole = searchParams.get('role')
+        const urlRole = roleCookie
         
         const { data: existingUser } = await supabase.from('users').select('role').eq('id', user.id).single()
         const finalRole = existingUser?.role || urlRole || user.user_metadata?.role || 'buyer'
@@ -49,13 +55,18 @@ export async function GET(request: Request) {
 
       const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'
+      let response: NextResponse;
       if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${redirectPath}`)
+        response = NextResponse.redirect(`${origin}${redirectPath}`)
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`)
+        response = NextResponse.redirect(`https://${forwardedHost}${redirectPath}`)
       } else {
-        return NextResponse.redirect(`${origin}${redirectPath}`)
+        response = NextResponse.redirect(`${origin}${redirectPath}`)
       }
+      
+      response.cookies.delete('auth_next')
+      response.cookies.delete('auth_role')
+      return response
     } else {
       return NextResponse.redirect(`${origin}/auth?error=${encodeURIComponent(error.message)}`)
     }

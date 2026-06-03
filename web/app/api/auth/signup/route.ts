@@ -50,13 +50,16 @@ export async function POST(request: Request) {
       }
     })
 
+    console.log('Supabase signup response:', { data, error })
+
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
     const user = data.user
     if (!user) {
-      return NextResponse.json({ error: 'Signup failed. Please try again.' }, { status: 400 })
+      // In Supabase, if email enumeration protection is on, signing up with an existing email returns user: null and error: null.
+      return NextResponse.json({ error: 'Signup failed. This email might already be registered.' }, { status: 400 })
     }
 
     // 2. Profile creation in public.users and public.vendors is handled during the first login

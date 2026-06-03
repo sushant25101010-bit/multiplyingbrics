@@ -31,11 +31,15 @@ export default function AuthPage() {
     setError(null)
     setInfoMessage(null)
     try {
+      // Use cookies to pass role and next path instead of query params to avoid Supabase URL matching issues
+      document.cookie = `auth_role=${role}; path=/; max-age=600` // 10 minutes
+      document.cookie = `auth_next=${encodeURIComponent(redirectPath)}; path=/; max-age=600`
+      
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectPath)}&role=${role}`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       })
       if (error) throw error
