@@ -45,7 +45,8 @@ export default function Header({ user }: HeaderProps) {
 
   const navLinks = [
     { name: 'Marketplace', href: '/' },
-    { name: 'Search', href: '/search' },
+    { name: 'Our Products', href: '/products' },
+    { name: 'Contact Us', href: '/contact' },
   ]
 
   const accountLinks = {
