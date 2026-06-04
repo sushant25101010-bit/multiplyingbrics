@@ -10,6 +10,7 @@ export interface User {
   phone: string | null;
   full_name: string | null;
   role: UserRole;
+  avatar_url?: string | null;
   created_at: string;
 }
 

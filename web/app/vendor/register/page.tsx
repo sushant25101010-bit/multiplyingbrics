@@ -87,22 +87,22 @@ export default function VendorRegisterPage() {
 
   return (
     <main className="p-[clamp(16px,4vw,48px)] max-w-[clamp(320px,90vw,800px)] mx-auto font-sans">
-      <h1 className="text-[clamp(24px,4vw,40px)] font-bold mb-[clamp(8px,2vw,16px)] text-slate-900">
+      <h1 className="text-[clamp(24px,4vw,40px)] font-bold mb-[clamp(8px,2vw,16px)] text-slate-900 dark:text-white">
         Become a Vendor
       </h1>
-      <p className="text-[clamp(14px,2vw,18px)] text-slate-600 mb-[clamp(24px,4vw,40px)]">
+      <p className="text-[clamp(14px,2vw,18px)] text-slate-600 dark:text-slate-400 mb-[clamp(24px,4vw,40px)]">
         Register your business to start listing construction materials on Multiplying Brics.
       </p>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 rounded-lg mb-6 text-[clamp(14px,1.5vw,16px)]">
+        <div className="p-4 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 rounded-lg mb-6 text-[clamp(14px,1.5vw,16px)]">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-[clamp(16px,3vw,24px)]">
         <div className="flex flex-col gap-2">
-          <label htmlFor="business_name" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800">
+          <label htmlFor="business_name" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800 dark:text-slate-200">
             Business Name *
           </label>
           <input
@@ -112,13 +112,13 @@ export default function VendorRegisterPage() {
             required
             value={formData.business_name}
             onChange={handleInputChange}
-            className="p-[clamp(12px,2vw,16px)] min-h-[48px] rounded-lg border border-slate-300 text-[clamp(14px,1.5vw,16px)] focus:ring-2 focus:ring-slate-900 outline-none"
+            className="p-[clamp(12px,2vw,16px)] min-h-[48px] rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-[clamp(14px,1.5vw,16px)] focus:ring-2 focus:ring-slate-900 dark:focus:ring-amber-500 outline-none"
             aria-label="Business Name"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="gst_number" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800">
+          <label htmlFor="gst_number" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800 dark:text-slate-200">
             GST Number
           </label>
           <input
@@ -127,13 +127,13 @@ export default function VendorRegisterPage() {
             type="text"
             value={formData.gst_number}
             onChange={handleInputChange}
-            className="p-[clamp(12px,2vw,16px)] min-h-[48px] rounded-lg border border-slate-300 text-[clamp(14px,1.5vw,16px)] focus:ring-2 focus:ring-slate-900 outline-none"
+            className="p-[clamp(12px,2vw,16px)] min-h-[48px] rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-[clamp(14px,1.5vw,16px)] focus:ring-2 focus:ring-slate-900 dark:focus:ring-amber-500 outline-none"
             aria-label="GST Number"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="address" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800">
+          <label htmlFor="address" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800 dark:text-slate-200">
             Business Address
           </label>
           <textarea
@@ -142,52 +142,52 @@ export default function VendorRegisterPage() {
             rows={3}
             value={formData.address}
             onChange={handleInputChange}
-            className="p-[clamp(12px,2vw,16px)] rounded-lg border border-slate-300 text-[clamp(14px,1.5vw,16px)] focus:ring-2 focus:ring-slate-900 outline-none"
+            className="p-[clamp(12px,2vw,16px)] rounded-lg border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-[clamp(14px,1.5vw,16px)] focus:ring-2 focus:ring-slate-900 dark:focus:ring-amber-500 outline-none"
             aria-label="Business Address"
           />
         </div>
 
-        <div className="border-t border-slate-200 my-[clamp(16px,3vw,32px)] pt-[clamp(16px,3vw,32px)]">
-          <h2 className="text-[clamp(18px,3vw,24px)] font-semibold text-slate-900 mb-[clamp(8px,2vw,16px)]">
+        <div className="border-t border-slate-200 dark:border-slate-800 my-[clamp(16px,3vw,32px)] pt-[clamp(16px,3vw,32px)]">
+          <h2 className="text-[clamp(18px,3vw,24px)] font-semibold text-slate-900 dark:text-white mb-[clamp(8px,2vw,16px)]">
             Verification Documents
           </h2>
-          <p className="text-[clamp(12px,1.5vw,14px)] text-slate-500 mb-[clamp(16px,3vw,24px)]">
+          <p className="text-[clamp(12px,1.5vw,14px)] text-slate-500 dark:text-slate-400 mb-[clamp(16px,3vw,24px)]">
             Accepted formats: PDF, JPG, PNG. Max size: 5MB per file.
           </p>
 
           <div className="flex flex-col gap-[clamp(16px,3vw,24px)]">
             <div className="flex flex-col gap-2">
-              <label htmlFor="doc_pan" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800">PAN Card</label>
+              <label htmlFor="doc_pan" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800 dark:text-slate-200">PAN Card</label>
               <input
                 id="doc_pan"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={(e) => handleFileChange(e, 'pan')}
-                className="min-h-[48px] pt-2 text-[clamp(14px,1.5vw,16px)]"
+                className="min-h-[48px] pt-2 text-[clamp(14px,1.5vw,16px)] text-slate-900 dark:text-slate-300"
                 aria-label="Upload PAN Card"
               />
             </div>
             
             <div className="flex flex-col gap-2">
-              <label htmlFor="doc_trade" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800">Trade Licence</label>
+              <label htmlFor="doc_trade" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800 dark:text-slate-200">Trade Licence</label>
               <input
                 id="doc_trade"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={(e) => handleFileChange(e, 'trade_licence')}
-                className="min-h-[48px] pt-2 text-[clamp(14px,1.5vw,16px)]"
+                className="min-h-[48px] pt-2 text-[clamp(14px,1.5vw,16px)] text-slate-900 dark:text-slate-300"
                 aria-label="Upload Trade Licence"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="doc_gst" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800">GST Certificate</label>
+              <label htmlFor="doc_gst" className="text-[clamp(14px,1.5vw,16px)] font-semibold text-slate-800 dark:text-slate-200">GST Certificate</label>
               <input
                 id="doc_gst"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={(e) => handleFileChange(e, 'gst')}
-                className="min-h-[48px] pt-2 text-[clamp(14px,1.5vw,16px)]"
+                className="min-h-[48px] pt-2 text-[clamp(14px,1.5vw,16px)] text-slate-900 dark:text-slate-300"
                 aria-label="Upload GST Certificate"
               />
             </div>
@@ -197,7 +197,7 @@ export default function VendorRegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="min-h-[48px] bg-slate-900 text-white font-semibold text-[clamp(14px,1.5vw,16px)] rounded-lg mt-[clamp(16px,3vw,24px)] hover:bg-slate-800 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
+          className="min-h-[48px] bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-[clamp(14px,1.5vw,16px)] rounded-lg mt-[clamp(16px,3vw,24px)] hover:bg-slate-800 dark:hover:bg-slate-200 disabled:bg-slate-400 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-colors"
           aria-label="Submit Application"
         >
           {loading ? 'Submitting...' : 'Submit Application'}

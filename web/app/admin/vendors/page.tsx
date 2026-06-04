@@ -220,10 +220,10 @@ export default function AdminVendorsPage() {
           ))}
 
           {vendors.length === 0 && (
-            <div className="p-24 text-center bg-slate-50 rounded-[48px] border-2 border-dashed border-slate-200">
+            <div className="p-24 text-center bg-slate-50 dark:bg-slate-900/50 rounded-[48px] border-2 border-dashed border-slate-200 dark:border-slate-800">
               <span className="text-5xl mb-6 block">📂</span>
-              <h2 className="text-xl font-black text-slate-900 mb-2">No {activeTab} vendors</h2>
-              <p className="text-slate-500">There are currently no vendor applications in this category.</p>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">No {activeTab} vendors</h2>
+              <p className="text-slate-500 dark:text-slate-400">There are currently no vendor applications in this category.</p>
             </div>
           )}
         </div>
