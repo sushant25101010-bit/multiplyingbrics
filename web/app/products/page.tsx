@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Search, Package, MapPin } from 'lucide-react'
+import { Search, Package } from 'lucide-react'
 
 // Defining a type for the joined material data
 interface ProductMaterial {
@@ -10,16 +10,16 @@ interface ProductMaterial {
   slug: string
   unit: string
   description: string | null
-  category: { name: string } | null
+  category: { name: string; slug: string } | null
 }
 
 async function getProducts(): Promise<ProductMaterial[]> {
   const supabase = createClient()
   
-  // We fetch materials and join with categories to get the category name
+  // We fetch materials and join with categories to get the category name and slug
   const { data, error } = await supabase
     .from('materials')
-    .select('*, category:categories(name)')
+    .select('*, category:categories(name, slug)')
     .order('name')
     
   if (error) {
@@ -28,6 +28,13 @@ async function getProducts(): Promise<ProductMaterial[]> {
   }
   
   return data as ProductMaterial[]
+}
+
+const categoryImages: Record<string, string> = {
+  'cement-concrete': '/images/cement.png',
+  'steel-metal': '/images/steel.png',
+  'bricks-blocks': '/images/bricks.png',
+  'sand-aggregates': '/images/sand.png'
 }
 
 export default async function ProductsPage() {
@@ -52,51 +59,56 @@ export default async function ProductsPage() {
         </header>
 
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <div 
-                key={product.id}
-                className="group flex flex-col bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[24px] overflow-hidden hover:shadow-2xl hover:shadow-amber-500/5 transition-all duration-300"
-              >
-                {/* Product Image (Placeholder since materials don't have images in DB) */}
-                <div className="relative h-48 bg-slate-200 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-slate-900/10 dark:bg-black/20 z-10" />
-                  {/* Clean SVG Placeholder to ensure professional appearance */}
-                  <div className="z-0 w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 bg-slate-100 dark:bg-slate-800/80">
-                    <Package size={48} className="mb-2 opacity-50" />
-                    <span className="text-sm font-bold tracking-widest uppercase opacity-50">No Image</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+            {products.map((product) => {
+              const imageUrl = (product.category?.slug && categoryImages[product.category.slug]) 
+                ? categoryImages[product.category.slug] 
+                : 'https://images.unsplash.com/photo-1541913056074-43f380017cf3?q=80&w=2070&auto=format&fit=crop'
+
+              return (
+                <div 
+                  key={product.id}
+                  className="group relative flex flex-col justify-end min-h-[380px] bg-slate-950 rounded-[32px] overflow-hidden shadow-md hover:shadow-[0_0_24px_rgba(245,158,11,0.15)] transition-all duration-300 border border-slate-200/60 dark:border-slate-800/80 hover:border-amber-500/40 dark:hover:border-amber-500/40"
+                >
+                  {/* Product Background Image */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-90 dark:opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out"
+                    style={{ backgroundImage: `url(${imageUrl})` }}
+                  />
+                  
+                  {/* Overlay Gradient for readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/20 group-hover:from-slate-950/90 transition-all duration-350" />
+
+                  {/* Product Info */}
+                  <div className="relative z-10 flex flex-col flex-grow p-6 justify-end">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-500/20 backdrop-blur-md">
+                        {product.category?.name || 'Uncategorized'}
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 bg-slate-950/50 px-2 py-1 rounded-full backdrop-blur-md">
+                        per {product.unit}
+                      </span>
+                    </div>
+                    
+                    <h2 className="text-xl font-black text-white mb-2 line-clamp-2 group-hover:text-amber-400 transition-colors">
+                      {product.name}
+                    </h2>
+                    
+                    <p className="text-sm text-slate-300 mb-6 line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
+                      {product.description || `High-quality ${product.name.toLowerCase()} for all your construction needs. Procure directly from verified local vendors.`}
+                    </p>
+
+                    <Link
+                      href={`/?material_id=${product.id}&material_name=${encodeURIComponent(product.name)}`}
+                      className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]"
+                    >
+                      <Search size={16} />
+                      <span>Find Vendors</span>
+                    </Link>
                   </div>
                 </div>
-
-                {/* Product Info */}
-                <div className="flex flex-col flex-grow p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="inline-block px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full">
-                      {product.category?.name || 'Uncategorized'}
-                    </span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      per {product.unit}
-                    </span>
-                  </div>
-                  
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2 line-clamp-2">
-                    {product.name}
-                  </h2>
-                  
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-grow line-clamp-3 leading-relaxed">
-                    {product.description || `High-quality ${product.name.toLowerCase()} for all your construction needs. Procure directly from verified local vendors.`}
-                  </p>
-
-                  <Link
-                    href={`/?material_id=${product.id}&material_name=${encodeURIComponent(product.name)}`}
-                    className="w-full py-3.5 bg-slate-950 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-950 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 group-hover:shadow-lg"
-                  >
-                    <Search size={16} />
-                    <span>Find Vendors</span>
-                  </Link>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="text-center py-32 bg-slate-50 dark:bg-slate-900/20 rounded-[32px] border-2 border-dashed border-slate-200 dark:border-slate-800">
