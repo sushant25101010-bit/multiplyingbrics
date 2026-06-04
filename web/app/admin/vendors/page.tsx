@@ -120,7 +120,7 @@ export default function AdminVendorsPage() {
                       {vendor.status}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-6 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                     <div>
                       <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">Owner</span>
                       <p className="font-bold text-slate-700">{vendor.owner?.full_name || 'N/A'}</p>
