@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { MapPin, Mail, Copy, Check, ExternalLink } from 'lucide-react'
+import { MapPin, Mail, Copy, Check, ExternalLink, Send } from 'lucide-react'
 
 export default function ContactPage() {
   const [copied, setCopied] = useState(false)
@@ -40,30 +40,53 @@ export default function ContactPage() {
         {/* Bottom 2-Column Grid */}
         <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start w-full">
           
-          {/* Left Column: Large Founder Card */}
-          <div className="group flex flex-col bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 hover:border-amber-500/40 dark:hover:border-amber-500/40 rounded-[32px] overflow-hidden shadow-2xl shadow-amber-500/5 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] hover:-translate-y-2 transition-all duration-500 h-full">
-            <div className="w-full aspect-[3/4] sm:aspect-square md:aspect-[3/4] bg-slate-200 dark:bg-slate-800 relative overflow-hidden">
-              <img 
-                src="/images/founder.png" 
-                alt="Sushant Chouhan, CEO & Founder" 
-                className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" 
-                onError={(e) => { 
-                  e.currentTarget.src = 'https://ui-avatars.com/api/?name=Sushant+Chouhan&background=f59e0b&color=fff&size=500&bold=true' 
-                }} 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8 w-full">
-                <h3 className="text-3xl font-black text-white leading-tight mb-1 group-hover:text-amber-400 transition-colors">
-                  Sushant Chouhan
-                </h3>
-                <p className="text-amber-400 font-bold text-sm tracking-wide uppercase mb-3">
-                  CEO & Founder
-                </p>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Leading the vision to organize and digitalize the construction materials supply chain across India with Multiplying Brics.
-                </p>
+          {/* Left Column: Contact Form */}
+          <div className="group flex flex-col bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-amber-500/40 dark:hover:border-amber-500/40 rounded-[32px] p-8 md:p-12 shadow-2xl shadow-amber-500/5 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500 h-full w-full">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-950 dark:text-white mb-3 tracking-tight">Drop us a message</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-10 leading-relaxed">
+              Fill out the quick form below and our team will get back to you within 24 hours.
+            </p>
+            
+            <form 
+              className="flex flex-col gap-8" 
+              action="https://formsubmit.co/sushant2510@yahoo.com" 
+              method="POST"
+            >
+              <input type="hidden" name="_subject" value="New Contact Form Submission from MultiplyingBrics" />
+              <input type="hidden" name="_captcha" value="false" />
+              
+              <div className="flex flex-col gap-3">
+                <label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm uppercase tracking-wider">Your Email</label>
+                <input 
+                  type="email" 
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="hello@company.com"
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
+                />
               </div>
-            </div>
+              
+              <div className="flex flex-col gap-3">
+                <label htmlFor="message" className="text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm uppercase tracking-wider">Project Details / Message</label>
+                <textarea 
+                  id="message"
+                  name="message"
+                  required
+                  placeholder="Tell us about your project requirements or what you are building..."
+                  rows={4}
+                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all resize-none"
+                />
+              </div>
+              
+              <button 
+                type="submit"
+                className="mt-2 w-full py-4 bg-slate-950 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-950 font-bold text-base rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span>Send Message</span>
+                <Send size={18} />
+              </button>
+            </form>
           </div>
 
           {/* Right Column: Office Card */}
