@@ -106,7 +106,7 @@ export default function AdminVendorsPage() {
       ) : (
         <div className="space-y-8">
           {vendors.map((vendor) => (
-            <div key={vendor.id} className="p-[clamp(20px,4vw,40px)] bg-white border-2 border-slate-100 rounded-[32px] shadow-xl shadow-slate-200/50">
+            <div key={vendor.id} className={`p-[clamp(20px,4vw,40px)] border-2 border-slate-100 rounded-[32px] shadow-xl shadow-slate-200/50 transition-colors duration-300 ${vendor.status === 'approved' ? 'bg-transparent hover:bg-slate-100/50 dark:hover:bg-slate-800/50' : 'bg-white'}`}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 {/* Business Info */}
                 <div>
@@ -138,9 +138,9 @@ export default function AdminVendorsPage() {
                       <p className="font-bold text-slate-700">{new Date(vendor.created_at).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className={`p-4 rounded-2xl border ${vendor.status === 'approved' ? 'bg-transparent border-slate-200/20 dark:border-slate-800/50' : 'bg-slate-50 border-slate-100'}`}>
                     <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">Address</span>
-                    <p className="text-sm text-slate-600 leading-relaxed">{vendor.address}</p>
+                    <p className="text-sm text-slate-500 leading-relaxed">{vendor.address}</p>
                   </div>
                 </div>
 
