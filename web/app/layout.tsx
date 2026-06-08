@@ -4,6 +4,7 @@ import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
+import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], weight: ['400', '500', '600', '700', '800', '900'] });
@@ -67,6 +68,7 @@ export default async function RootLayout({
             {children}
           </div>
           <Footer />
+          <WhatsAppFloat />
         </ThemeProvider>
       </body>
     </html>
