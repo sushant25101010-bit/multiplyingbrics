@@ -60,6 +60,7 @@ export async function POST(request: Request) {
         vendor_id: vendor.id,
         material_id,
         price_per_unit,
+        pincode: (service_pincodes && service_pincodes.length > 0) ? service_pincodes[0] : 'N/A',
         available_stock: available_stock || 0,
         delivery_availability: delivery_availability ?? true,
         service_pincodes: service_pincodes || [],
