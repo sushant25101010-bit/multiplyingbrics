@@ -111,7 +111,7 @@ export default function AdminVendorsPage() {
                 {/* Business Info */}
                 <div>
                   <div className="flex items-center gap-4 mb-4">
-                    <h2 className="text-[clamp(20px,2vw,24px)] font-black text-slate-900">{vendor.business_name}</h2>
+                    <h2 className="text-[clamp(20px,2vw,24px)] font-black text-slate-900 dark:text-white">{vendor.business_name}</h2>
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                       vendor.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
                       vendor.status === 'rejected' ? 'bg-red-100 text-red-700' :
@@ -122,25 +122,25 @@ export default function AdminVendorsPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                     <div>
-                      <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">Owner</span>
-                      <p className="font-bold text-slate-700">{vendor.owner?.full_name || 'N/A'}</p>
+                      <span className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-1">Owner</span>
+                      <p className="font-bold text-slate-700 dark:text-slate-200">{vendor.owner?.full_name || 'N/A'}</p>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">GST Number</span>
-                      <p className="font-bold text-slate-700 font-mono">{vendor.gst_number || 'N/A'}</p>
+                      <span className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-1">GST Number</span>
+                      <p className="font-bold text-slate-700 dark:text-slate-200 font-mono">{vendor.gst_number || 'N/A'}</p>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">Phone</span>
-                      <p className="font-bold text-slate-700">{vendor.owner?.phone}</p>
+                      <span className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-1">Phone</span>
+                      <p className="font-bold text-slate-700 dark:text-slate-200">{vendor.owner?.phone}</p>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">Applied On</span>
-                      <p className="font-bold text-slate-700">{new Date(vendor.created_at).toLocaleDateString()}</p>
+                      <span className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-1">Applied On</span>
+                      <p className="font-bold text-slate-700 dark:text-slate-200">{new Date(vendor.created_at).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <div className={`p-4 rounded-2xl border ${vendor.status === 'approved' ? 'bg-transparent border-slate-200/20 dark:border-slate-800/50' : 'bg-slate-50 border-slate-100'}`}>
-                    <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest block mb-1">Address</span>
-                    <p className="text-sm text-slate-500 leading-relaxed">{vendor.address}</p>
+                  <div className={`p-4 rounded-2xl border ${vendor.status === 'approved' ? 'bg-transparent border-slate-200/20 dark:border-slate-800/50' : 'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800'}`}>
+                    <span className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block mb-1">Address</span>
+                    <p className="text-sm text-slate-500 dark:text-slate-300 leading-relaxed">{vendor.address}</p>
                   </div>
                 </div>
 
