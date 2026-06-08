@@ -1,10 +1,19 @@
 "use client"
 
 import { useState } from 'react'
-import { MapPin, Mail, Copy, Check, ExternalLink, Send } from 'lucide-react'
+import { MapPin, Mail, Copy, Check, ExternalLink, Send, X } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export default function ContactPage() {
   const [copied, setCopied] = useState(false)
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+  const [toast, setToast] = useState<{show: boolean, type: 'success'|'error', message: string}>({ show: false, type: 'success', message: '' })
+
+  const showToast = (type: 'success' | 'error', msg: string) => {
+    setToast({ show: true, type, message: msg })
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000)
+  }
   const address = "DS-MAX Senate, Begur, Bengaluru, Karnataka 560114"
   const mapUrl = "https://www.google.com/maps/place/DS-MAX+Senate/@12.8687516,77.6319736,17z/data=!3m1!4b1!4m6!3m5!1s0x3bae6b001ccb358d:0x9f480b8aece20d41!8m2!3d12.8687464!4d77.6345485!16s%2Fg%2F11mdsxr97k"
 
@@ -47,46 +56,65 @@ export default function ContactPage() {
               Fill out the quick form below and our team will get back to you within 24 hours.
             </p>
             
-            <form 
-              className="flex flex-col gap-8" 
-              action="https://formsubmit.co/sushant2510@yahoo.com" 
-              method="POST"
-            >
-              <input type="hidden" name="_subject" value="New Contact Form Submission from MultiplyingBrics" />
-              <input type="hidden" name="_captcha" value="false" />
-              
-              <div className="flex flex-col gap-3">
-                <label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm uppercase tracking-wider">Your Email</label>
-                <input 
-                  type="email" 
-                  id="email"
-                  name="email"
-                  required
-                  placeholder="hello@company.com"
-                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
-                />
+              <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-3">
+                  <label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm uppercase tracking-wider">Your Email</label>
+                  <input 
+                    type="email" 
+                    id="email"
+                    name="email"
+                    required
+                    placeholder="hello@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <label htmlFor="message" className="text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm uppercase tracking-wider">Project Details / Message</label>
+                  <textarea 
+                    id="message"
+                    name="message"
+                    required
+                    placeholder="Tell us about your project requirements or what you are building..."
+                    rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all resize-none"
+                  />
+                </div>
+                
+                <button 
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (!email || !message) {
+                      showToast('error', "Please fill out your email and message first.");
+                      return;
+                    }
+                    try {
+                      const res = await fetch('/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, message })
+                      });
+                      if (res.ok) {
+                        showToast('success', "Message sent successfully! We will get back to you shortly.");
+                        setEmail('');
+                        setMessage('');
+                      } else {
+                        showToast('error', "Error saving message to database. Please make sure the contact_messages table is created.");
+                      }
+                    } catch (error) {
+                      showToast('error', "Network error. Please try again later.");
+                    }
+                  }}
+                  className="mt-2 w-full py-4 bg-slate-950 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-950 font-bold text-base rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <span>Send Message</span>
+                  <Send size={18} />
+                </button>
               </div>
-              
-              <div className="flex flex-col gap-3">
-                <label htmlFor="message" className="text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm uppercase tracking-wider">Project Details / Message</label>
-                <textarea 
-                  id="message"
-                  name="message"
-                  required
-                  placeholder="Tell us about your project requirements or what you are building..."
-                  rows={4}
-                  className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all resize-none"
-                />
-              </div>
-              
-              <button 
-                type="submit"
-                className="mt-2 w-full py-4 bg-slate-950 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-950 font-bold text-base rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm"
-              >
-                <span>Send Message</span>
-                <Send size={18} />
-              </button>
-            </form>
           </div>
 
           {/* Right Column: Office Card */}
@@ -134,6 +162,39 @@ export default function ContactPage() {
 
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div
+            initial={{ opacity: 0, x: 50, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 20, scale: 0.9 }}
+            className={`fixed top-4 right-4 md:top-8 md:right-8 z-50 flex items-center gap-4 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-xl max-w-[calc(100vw-2rem)] md:max-w-md ${
+              toast.type === 'success' 
+                ? 'bg-white/90 dark:bg-[#060b17]/90 border-amber-500/30 dark:border-amber-500/30 text-slate-900 dark:text-white shadow-amber-500/10'
+                : 'bg-white/90 dark:bg-[#060b17]/90 border-red-500/30 dark:border-red-500/30 text-slate-900 dark:text-white shadow-red-500/10'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 dark:bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Check size={20} className="text-amber-600 dark:text-amber-400" />
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-red-500/10 dark:bg-red-500/10 flex items-center justify-center shrink-0">
+                <X size={20} className="text-red-600 dark:text-red-400" />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <span className="font-bold text-base">{toast.type === 'success' ? 'Thank you!' : 'Error'}</span>
+              <span className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{toast.message}</span>
+            </div>
+            <button onClick={() => setToast(prev => ({ ...prev, show: false }))} className="ml-auto pl-2 opacity-50 hover:opacity-100 transition-opacity">
+              <X size={18} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   )
 }
