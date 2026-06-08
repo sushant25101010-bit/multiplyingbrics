@@ -14,11 +14,29 @@ export async function PATCH(
 
   try {
     const body = await request.json()
-    const { price_per_unit, in_stock, notes } = body
+    const { 
+      price_per_unit, 
+      in_stock, 
+      notes,
+      available_stock,
+      delivery_availability,
+      service_pincodes,
+      status
+    } = body
+
+    const updatePayload: any = { updated_at: new Date().toISOString() }
+    
+    if (price_per_unit !== undefined) updatePayload.price_per_unit = price_per_unit
+    if (in_stock !== undefined) updatePayload.in_stock = in_stock
+    if (notes !== undefined) updatePayload.notes = notes
+    if (available_stock !== undefined) updatePayload.available_stock = available_stock
+    if (delivery_availability !== undefined) updatePayload.delivery_availability = delivery_availability
+    if (service_pincodes !== undefined) updatePayload.service_pincodes = service_pincodes
+    if (status !== undefined) updatePayload.status = status // Allows pause/activate
 
     const { data, error } = await supabase
       .from('listings')
-      .update({ price_per_unit, in_stock, notes, updated_at: new Date().toISOString() })
+      .update(updatePayload)
       .eq('id', params.id)
       .eq('vendor_id', vendor.id) // Ensure vendor owns it
       .select()

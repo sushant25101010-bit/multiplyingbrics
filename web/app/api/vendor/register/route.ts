@@ -17,6 +17,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Business name is required' }, { status: 400 })
     }
 
+    // Ensure the user exists in public.users before referencing it
+    const { data: existingUser } = await supabase.from('users').select('id').eq('id', user.id).single();
+    if (!existingUser) {
+      await supabase.from('users').insert({
+        id: user.id,
+        full_name: user.user_metadata?.full_name || 'User',
+        email: user.email,
+        role: user.user_metadata?.role || 'buyer'
+      });
+    }
+
     const { data: vendor, error: vendorError } = await supabase
       .from('vendors')
       .insert({

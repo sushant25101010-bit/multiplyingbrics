@@ -27,6 +27,20 @@ export async function GET() {
       .select('*', { count: 'exact', head: true })
       .eq('vendor_id', vendor.id)
 
+    // 1b. Active Listings
+    const { count: activeListingsCount } = await supabase
+      .from('listings')
+      .select('*', { count: 'exact', head: true })
+      .eq('vendor_id', vendor.id)
+      .eq('status', 'active')
+
+    // 1c. Out of Stock Listings
+    const { count: outOfStockCount } = await supabase
+      .from('listings')
+      .select('*', { count: 'exact', head: true })
+      .eq('vendor_id', vendor.id)
+      .eq('in_stock', false)
+
     // 2. Active Pincodes
     const { count: pincodesCount } = await supabase
       .from('vendor_pincodes')
@@ -34,17 +48,26 @@ export async function GET() {
       .eq('vendor_id', vendor.id)
 
     // 3. New Enquiries (Open)
-    const { count: enquiriesCount } = await supabase
+    const { count: openEnquiriesCount } = await supabase
       .from('enquiries')
       .select('*', { count: 'exact', head: true })
       .eq('vendor_id', vendor.id)
       .eq('status', 'open')
 
+    // 3b. Total Enquiries
+    const { count: totalEnquiriesCount } = await supabase
+      .from('enquiries')
+      .select('*', { count: 'exact', head: true })
+      .eq('vendor_id', vendor.id)
+
     return NextResponse.json({
       stats: {
-        listings: listingsCount || 0,
-        pincodes: pincodesCount || 0,
-        enquiries: enquiriesCount || 0
+        total_listings: listingsCount || 0,
+        active_listings: activeListingsCount || 0,
+        out_of_stock: outOfStockCount || 0,
+        open_enquiries: openEnquiriesCount || 0,
+        total_enquiries: totalEnquiriesCount || 0,
+        pincodes_served: pincodesCount || 0
       },
       vendor_status: vendor.status
     })

@@ -16,30 +16,42 @@ export async function PATCH(
   try {
     const { action, rejection_note } = await request.json()
 
-    // Proxy to the Edge Function (uses Service Role Key to bypass RLS and update roles)
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
-    // We pass the admin's own JWT token so the Edge Function can verify they are truly an admin
-    const authHeader = request.headers.get('Authorization')
+    // Map action to status
+    const status = action === 'approve' ? 'approved' : 'rejected'
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/approve-vendor`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader || `Bearer ${supabaseAnonKey}`,
-      },
-      body: JSON.stringify({
-        vendor_id: params.id,
-        action,
-        rejection_note
-      }),
-    })
+    // Update vendor status
+    const { error: vendorError } = await supabase
+      .from('vendors')
+      .update({ 
+        status: status,
+        rejection_note: rejection_note || null
+      })
+      .eq('id', params.id)
 
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.error || 'Operation failed')
+    if (vendorError) {
+      console.error("VENDOR UPDATE ERROR:", vendorError)
+      throw vendorError
+    }
 
-    return NextResponse.json(data)
+    // If approved, also upgrade the user's role to 'vendor'
+    if (action === 'approved') {
+      const { data: vendorData } = await supabase
+        .from('vendors')
+        .select('user_id')
+        .eq('id', params.id)
+        .single()
+        
+      if (vendorData?.user_id) {
+        const { error: userError } = await supabase
+          .from('users')
+          .update({ role: 'vendor' })
+          .eq('id', vendorData.user_id)
+          
+        if (userError) throw userError
+      }
+    }
+
+    return NextResponse.json({ success: true, message: `Vendor successfully ${action}` })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

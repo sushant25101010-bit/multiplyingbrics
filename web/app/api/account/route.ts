@@ -11,11 +11,32 @@ export async function GET() {
 
   try {
     // 1. Fetch user profile
-    const { data: user } = await supabase
+    let { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
       .eq('id', authUser.id)
       .single()
+
+    // 1.5. If user profile doesn't exist, create it dynamically
+    if (!user || userError) {
+      const newUser = {
+        id: authUser.id,
+        full_name: authUser.user_metadata?.full_name || 'User',
+        email: authUser.email,
+        role: authUser.user_metadata?.role || 'buyer'
+      }
+      
+      const { data: createdUser, error: createError } = await supabase
+        .from('users')
+        .insert(newUser)
+        .select()
+        .single()
+        
+      if (createError) {
+        throw new Error("Failed to auto-create user profile: " + createError.message)
+      }
+      user = createdUser
+    }
 
     // Add Google profile image to user object as fallback
     const googleAvatar = authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || null;
@@ -23,7 +44,7 @@ export async function GET() {
 
     let result: any = { user: enrichedUser, saved_vendors: [], enquiries: [] };
 
-    if (user.role === 'buyer') {
+    if (user?.role === 'buyer') {
       // Fetch saved vendors and enquiries for buyers
       const { data: savedVendors } = await supabase
         .from('saved_vendors')

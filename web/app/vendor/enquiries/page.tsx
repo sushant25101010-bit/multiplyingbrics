@@ -1,142 +1,231 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface EnquiryData {
   id: string
   message: string
   status: 'open' | 'responded' | 'closed'
   created_at: string
+  quantity_requested: number
+  pincode: string
   buyer: {
     full_name: string | null
     phone: string | null
+    email: string | null
   }
   listing: {
-    pincode: string
+    price_per_unit: number
+    service_pincodes: string[]
     material: {
       name: string
       unit: string
+      image_url: string | null
     }
   } | null
+}
+
+interface PaginatedResponse {
+  enquiries: EnquiryData[]
+  total: number
+  page: number
+  limit: number
+}
+
+const categoryImages: Record<string, string> = {
+  'cement-concrete': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80',
+  'bricks-blocks': 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=80',
+  'steel-metal': 'https://images.unsplash.com/photo-1532509774739-ce311542f5bf?w=800&q=80',
+  'sand': 'https://images.unsplash.com/photo-1621274403997-36e78848dcf3?w=800&q=80',
+  'tiles': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+  'paint': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800&q=80',
+  'electrical': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80',
+  'plumbing': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800&q=80',
 }
 
 export default function VendorEnquiriesPage() {
   const [enquiries, setEnquiries] = useState<EnquiryData[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Pagination State
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const limit = 20
 
-  const fetchEnquiries = async () => {
+  const fetchEnquiries = useCallback(async (pageNum: number, append = false) => {
     try {
-      const res = await fetch('/api/vendor/enquiries')
-      const data = await res.json()
-      if (res.ok) setEnquiries(data.enquiries)
+      if (pageNum === 1) setLoading(true)
+      const res = await fetch(`/api/vendor/enquiries?page=${pageNum}&limit=${limit}`)
+      const data: PaginatedResponse = await res.json()
+      if (res.ok) {
+        if (append) {
+          setEnquiries(prev => [...prev, ...(data.enquiries || [])])
+        } else {
+          setEnquiries(data.enquiries || [])
+        }
+        setTotal(data.total || 0)
+        setHasMore((data.enquiries?.length || 0) === limit)
+      }
     } catch (err) {
       console.error('Failed to poll enquiries', err)
     } finally {
       setLoading(false)
     }
-  }
-
-  // Polling pattern: immediate load + every 30s
-  useEffect(() => {
-    fetchEnquiries()
-    const interval = setInterval(fetchEnquiries, 30000)
-    return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    fetchEnquiries(1)
+    const interval = setInterval(() => fetchEnquiries(1), 30000)
+    return () => clearInterval(interval)
+  }, [fetchEnquiries])
+
+  const loadMore = () => {
+    const nextPage = page + 1
+    setPage(nextPage)
+    fetchEnquiries(nextPage, true)
+  }
+
   const updateStatus = async (id: string, status: 'open' | 'responded' | 'closed') => {
+    // Optimistic update
+    setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status } : e))
     try {
       const res = await fetch(`/api/vendor/enquiries/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       })
-      if (res.ok) fetchEnquiries()
+      if (!res.ok) {
+        // Refresh to revert
+        fetchEnquiries(1)
+      }
     } catch (err) {
       console.error('Failed to update status', err)
+      fetchEnquiries(1)
     }
   }
 
-  if (loading) return <div className="p-12 text-center text-slate-500 font-bold">Loading inbox...</div>
+  if (loading && page === 1) return <div className="p-12 text-center text-slate-500 font-bold animate-pulse">Loading inbox...</div>
 
   return (
     <main className="max-w-[clamp(320px,95vw,1000px)] mx-auto p-[clamp(16px,4vw,48px)]">
-      <header className="mb-10">
-        <h1 className="text-[clamp(24px,4vw,36px)] font-black text-slate-900 tracking-tight">
-          Enquiries Inbox
-        </h1>
-        <p className="text-slate-500 mt-2">Manage leads from interested buyers.</p>
+      <header className="mb-10 flex justify-between items-end flex-wrap gap-4">
+        <div>
+          <h1 className="text-[clamp(24px,4vw,36px)] font-black text-slate-900 tracking-tight">
+            Enquiries Inbox
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium">Manage leads from interested buyers.</p>
+        </div>
+        <div className="bg-slate-100 px-4 py-2 rounded-xl text-slate-600 font-bold text-sm">
+          Total: {total}
+        </div>
       </header>
 
       <div className="space-y-6">
-        {enquiries.map((enquiry) => (
-          <div 
-            key={enquiry.id} 
-            className={`p-[clamp(16px,3vw,32px)] border-2 rounded-3xl transition-all ${
-              enquiry.status === 'open' ? 'bg-white border-slate-900 shadow-xl shadow-slate-200/50' : 'bg-slate-50 border-slate-200 opacity-80'
-            }`}
-          >
-            <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
-              <div>
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                  enquiry.status === 'open' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
-                  enquiry.status === 'responded' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
-                  'bg-slate-100 text-slate-500 border-slate-200'
-                }`}>
-                  {enquiry.status}
-                </span>
-                <h2 className="text-[clamp(18px,2vw,22px)] font-black text-slate-900 mt-2">
-                  {enquiry.buyer?.full_name || 'Anonymous Buyer'}
-                </h2>
-                <p className="text-slate-500 text-sm font-bold">📞 {enquiry.buyer?.phone}</p>
+        {enquiries.map((enquiry) => {
+          const displayImage = enquiry.listing?.material.image_url || 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80'
+          
+          return (
+            <div 
+              key={enquiry.id} 
+              className={`p-[clamp(16px,3vw,32px)] border-2 rounded-3xl transition-all ${
+                enquiry.status === 'open' ? 'bg-white border-slate-200 shadow-xl shadow-slate-200/50' : 'bg-slate-50 border-slate-100 opacity-90'
+              }`}
+            >
+              <div className="flex flex-col md:flex-row gap-6 mb-6 pb-6 border-b-2 border-slate-100">
+                {/* Buyer Info */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                      enquiry.status === 'open' ? 'bg-amber-100 text-amber-700' : 
+                      enquiry.status === 'responded' ? 'bg-emerald-100 text-emerald-700' : 
+                      'bg-slate-200 text-slate-600'
+                    }`}>
+                      {enquiry.status}
+                    </span>
+                    <p className="text-xs font-bold text-slate-400">{new Date(enquiry.created_at).toLocaleDateString()} {new Date(enquiry.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 mb-1">
+                    {enquiry.buyer?.full_name || 'Anonymous Buyer'}
+                  </h2>
+                  <div className="flex flex-col gap-1 mt-2">
+                    <p className="text-slate-600 text-sm font-bold flex items-center gap-2">
+                      <span className="text-lg">📞</span> {enquiry.buyer?.phone || 'No phone'}
+                    </p>
+                    {enquiry.buyer?.email && (
+                      <p className="text-slate-600 text-sm font-bold flex items-center gap-2">
+                        <span className="text-lg">✉️</span> {enquiry.buyer?.email}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Product Info */}
+                <div className="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-200 flex gap-4">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={displayImage} alt="Product" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Interested In</p>
+                    <p className="font-bold text-slate-900 leading-tight mb-1">
+                      {enquiry.listing?.material.name}
+                    </p>
+                    <p className="text-sm text-slate-600 font-bold mb-1">Qty: {enquiry.quantity_requested || 1} {enquiry.listing?.material.unit}</p>
+                    <p className="text-xs text-slate-500 font-medium">Deliver to: <span className="font-bold text-slate-700">{enquiry.pincode || 'Not specified'}</span></p>
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Received</p>
-                <p className="text-sm font-bold text-slate-600">{new Date(enquiry.created_at).toLocaleDateString()}</p>
+
+              <div className="mb-8 pl-4 border-l-4 border-slate-200">
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Message from buyer</p>
+                <p className="text-slate-700 font-medium text-lg italic leading-relaxed">"{enquiry.message}"</p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <button 
+                  onClick={() => updateStatus(enquiry.id, 'responded')}
+                  className="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-black hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20 disabled:opacity-50 disabled:shadow-none"
+                  disabled={enquiry.status === 'responded' || enquiry.status === 'closed'}
+                >
+                  Mark as Responded
+                </button>
+                <button 
+                  onClick={() => updateStatus(enquiry.id, 'closed')}
+                  className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 hover:border-slate-300 transition-all disabled:opacity-50"
+                  disabled={enquiry.status === 'closed'}
+                >
+                  Close Lead
+                </button>
+                {enquiry.buyer?.phone && (
+                  <a 
+                    href={`tel:${enquiry.buyer?.phone}`}
+                    className="px-6 py-3 bg-emerald-50 text-emerald-700 border-2 border-emerald-100 rounded-xl text-sm font-black hover:bg-emerald-100 transition-all flex items-center ml-auto"
+                  >
+                    Call Buyer
+                  </a>
+                )}
               </div>
             </div>
+          )
+        })}
 
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Interested in</p>
-              <p className="font-bold text-slate-900">
-                {enquiry.listing?.material.name} ({enquiry.listing?.material.unit})
-              </p>
-              <p className="text-xs text-slate-500">Pincode: {enquiry.listing?.pincode}</p>
-            </div>
-
-            <div className="mb-8">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Message</p>
-              <p className="text-slate-700 leading-relaxed italic">"{enquiry.message}"</p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-6">
-              <button 
-                onClick={() => updateStatus(enquiry.id, 'responded')}
-                className="px-6 py-3 min-h-[48px] bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all"
-                disabled={enquiry.status === 'responded'}
-              >
-                Mark as Responded
-              </button>
-              <button 
-                onClick={() => updateStatus(enquiry.id, 'closed')}
-                className="px-6 py-3 min-h-[48px] bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
-                disabled={enquiry.status === 'closed'}
-              >
-                Close enquiry
-              </button>
-              <a 
-                href={`tel:${enquiry.buyer?.phone}`}
-                className="px-6 py-3 min-h-[48px] bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all flex items-center"
-              >
-                Call Buyer
-              </a>
-            </div>
-          </div>
-        ))}
-
-        {enquiries.length === 0 && (
+        {enquiries.length === 0 && !loading && (
           <div className="p-20 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
             <span className="text-4xl mb-4 block">📥</span>
-            <p className="text-slate-500 font-bold">Your inbox is empty. New leads will appear here.</p>
+            <p className="text-slate-500 font-bold text-lg">Your inbox is empty.</p>
+            <p className="text-slate-400">New leads from buyers will appear here.</p>
+          </div>
+        )}
+
+        {hasMore && (
+          <div className="mt-8 text-center">
+            <button 
+              onClick={loadMore}
+              className="px-8 py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-full hover:border-slate-300 hover:bg-slate-50 transition-all shadow-sm"
+            >
+              Load Older Leads
+            </button>
           </div>
         )}
       </div>

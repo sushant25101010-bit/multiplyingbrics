@@ -60,10 +60,13 @@ export default function VendorDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-[clamp(16px,3vw,24px)] mb-12">
-        <StatCard title="Total Listings" value={data?.stats.listings || 0} link="/vendor/listings" />
-        <StatCard title="Active Pincodes" value={data?.stats.pincodes || 0} link="/vendor/listings" />
-        <StatCard title="Open Enquiries" value={data?.stats.enquiries || 0} link="/vendor/enquiries" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[clamp(16px,3vw,24px)] mb-12">
+        <StatCard title="Total Listings" value={data?.stats.total_listings || 0} link="/vendor/listings" color="slate" />
+        <StatCard title="Active Listings" value={data?.stats.active_listings || 0} link="/vendor/listings" color="emerald" />
+        <StatCard title="Out of Stock" value={data?.stats.out_of_stock || 0} link="/vendor/listings" color="red" />
+        <StatCard title="Open Enquiries" value={data?.stats.open_enquiries || 0} link="/vendor/enquiries" color="amber" />
+        <StatCard title="Total Enquiries" value={data?.stats.total_enquiries || 0} link="/vendor/enquiries" color="blue" />
+        <StatCard title="Pincodes Served" value={data?.stats.pincodes_served || 0} link="/account" color="purple" />
       </div>
 
       <section>
@@ -100,11 +103,20 @@ export default function VendorDashboard() {
   )
 }
 
-function StatCard({ title, value, link }: { title: string; value: number; link: string }) {
+function StatCard({ title, value, link, color = 'slate' }: { title: string; value: number; link: string; color?: 'slate' | 'emerald' | 'red' | 'amber' | 'blue' | 'purple' }) {
+  const colorMap = {
+    slate: 'text-slate-900 group-hover:text-slate-700',
+    emerald: 'text-emerald-600 group-hover:text-emerald-500',
+    red: 'text-red-600 group-hover:text-red-500',
+    amber: 'text-amber-600 group-hover:text-amber-500',
+    blue: 'text-blue-600 group-hover:text-blue-500',
+    purple: 'text-purple-600 group-hover:text-purple-500'
+  }
+  
   return (
-    <Link href={link} className="p-8 bg-white border border-slate-200 rounded-2xl hover:shadow-lg transition-all group">
-      <h3 className="text-slate-500 font-medium mb-1 uppercase text-xs tracking-widest">{title}</h3>
-      <p className="text-4xl font-black text-slate-900 group-hover:text-slate-700">{value}</p>
+    <Link href={link} className="p-8 bg-white border border-slate-200 rounded-3xl hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all group">
+      <h3 className="text-slate-400 font-black mb-2 uppercase text-xs tracking-widest">{title}</h3>
+      <p className={`text-[clamp(32px,4vw,48px)] font-black leading-none ${colorMap[color]}`}>{value}</p>
     </Link>
   )
 }
