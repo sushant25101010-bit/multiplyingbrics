@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Header from "@/components/ui/Header";
+import Footer from "@/components/ui/Footer";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], weight: ['400', '500', '600', '700', '800', '900'] });
@@ -65,6 +66,7 @@ export default async function RootLayout({
           <div className="flex-grow">
             {children}
           </div>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
