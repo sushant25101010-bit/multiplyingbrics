@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server'
-import { Client } from 'pg'
+const { Client } = require('pg');
 
-export async function GET() {
-  const client = new Client({ 
-    connectionString: process.env.DATABASE_URL,
+async function migrate() {
+  const client = new Client({
+    connectionString: 'postgresql://postgres:Sushant2510%40@db.zbnzlyhkimcrrhossjfv.supabase.co:5432/postgres',
     ssl: { rejectUnauthorized: false }
-  })
+  });
+
   try {
-    await client.connect()
+    await client.connect();
+    
     await client.query(`
       CREATE TABLE IF NOT EXISTS public.indian_locations (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -34,11 +35,14 @@ export async function GET() {
               ON public.indian_locations FOR SELECT USING (true);
         END IF;
       END $$;
-    `)
-    return NextResponse.json({ success: true, message: "Migration executed successfully." })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message })
+    `);
+
+    console.log("SUCCESS: indian_locations table created successfully.");
+  } catch (err) {
+    console.error("ERROR:", err);
   } finally {
-    await client.end()
+    await client.end();
   }
 }
+
+migrate();

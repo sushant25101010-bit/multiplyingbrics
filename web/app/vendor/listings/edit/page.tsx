@@ -58,6 +58,60 @@ function EditListingContent() {
     notes: ''
   })
 
+  // Cascading Location States
+  const [dbStates, setDbStates] = useState<string[]>([])
+  const [dbCities, setDbCities] = useState<string[]>([])
+  const [dbLocalities, setDbLocalities] = useState<string[]>([])
+  const [dbPincodes, setDbPincodes] = useState<string[]>([])
+
+  const [cascadeState, setCascadeState] = useState('')
+  const [cascadeCity, setCascadeCity] = useState('')
+  const [cascadeLocality, setCascadeLocality] = useState('')
+  const [cascadePincode, setCascadePincode] = useState('')
+
+  // Fetch initial states
+  useEffect(() => {
+    fetch('/api/locations/states').then(res => res.json()).then(data => {
+      if(Array.isArray(data)) setDbStates(data)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (cascadeState) {
+      fetch(`/api/locations/cities?state=${encodeURIComponent(cascadeState)}`).then(res => res.json()).then(data => {
+        if(Array.isArray(data)) setDbCities(data)
+      })
+      setCascadeCity('')
+      setCascadeLocality('')
+      setCascadePincode('')
+      setDbCities([])
+      setDbLocalities([])
+      setDbPincodes([])
+    }
+  }, [cascadeState])
+
+  useEffect(() => {
+    if (cascadeCity) {
+      fetch(`/api/locations/localities?city=${encodeURIComponent(cascadeCity)}`).then(res => res.json()).then(data => {
+        if(Array.isArray(data)) setDbLocalities(data)
+      })
+      setCascadeLocality('')
+      setCascadePincode('')
+      setDbLocalities([])
+      setDbPincodes([])
+    }
+  }, [cascadeCity])
+
+  useEffect(() => {
+    if (cascadeLocality) {
+      fetch(`/api/locations/pincodes?locality=${encodeURIComponent(cascadeLocality)}`).then(res => res.json()).then(data => {
+        if(Array.isArray(data)) setDbPincodes(data)
+      })
+      setCascadePincode('')
+      setDbPincodes([])
+    }
+  }, [cascadeLocality])
+
   useEffect(() => {
     async function init() {
       try {
@@ -152,6 +206,15 @@ function EditListingContent() {
         return { ...prev, service_pincodes: [...current, pincode] }
       }
     })
+  }
+
+  const addServiceArea = () => {
+    if (cascadePincode && !formData.service_pincodes.includes(cascadePincode)) {
+      setFormData(prev => ({
+        ...prev,
+        service_pincodes: [...prev.service_pincodes, cascadePincode]
+      }))
+    }
   }
 
   if (loading) return <div className="p-12 text-center text-slate-500 font-bold animate-pulse">Loading form...</div>
@@ -297,34 +360,79 @@ function EditListingContent() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-500">Service Pincodes</label>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Select the areas you want to serve for this specific product. These are pulled from your master vendor profile.</p>
+            <div className="space-y-4 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl bg-white dark:bg-slate-900/50">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-500">Service Area Selection</label>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Add multiple specific locations where you can deliver this product.</p>
               
-              {vendorPincodes.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {vendorPincodes.map(vp => {
-                    const isSelected = formData.service_pincodes.includes(vp.pincode)
-                    return (
-                      <button
-                        type="button"
-                        key={vp.id}
-                        onClick={() => togglePincode(vp.pincode)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
-                          isSelected 
-                            ? 'bg-slate-900 border-slate-900 text-white shadow-md dark:bg-slate-100 dark:border-slate-100 dark:text-slate-900' 
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500'
-                        }`}
-                      >
-                        {vp.area_name} ({vp.pincode})
-                        {isSelected && <span className="ml-2 text-emerald-400 dark:text-emerald-600">✓</span>}
-                      </button>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-800 dark:text-amber-400 text-sm font-medium">
-                  You haven't added any serviceable pincodes to your vendor profile yet. 
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <select
+                  value={cascadeState}
+                  onChange={(e) => setCascadeState(e.target.value)}
+                  className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none"
+                >
+                  <option value="" disabled>1. Select State</option>
+                  {dbStates.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+
+                <select
+                  value={cascadeCity}
+                  onChange={(e) => setCascadeCity(e.target.value)}
+                  disabled={!cascadeState}
+                  className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none disabled:opacity-50"
+                >
+                  <option value="" disabled>2. Select City</option>
+                  {dbCities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+
+                <select
+                  value={cascadeLocality}
+                  onChange={(e) => setCascadeLocality(e.target.value)}
+                  disabled={!cascadeCity}
+                  className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none disabled:opacity-50"
+                >
+                  <option value="" disabled>3. Select Locality</option>
+                  {dbLocalities.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+
+                <select
+                  value={cascadePincode}
+                  onChange={(e) => setCascadePincode(e.target.value)}
+                  disabled={!cascadeLocality}
+                  className="w-full px-3 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none disabled:opacity-50"
+                >
+                  <option value="" disabled>4. Pincode</option>
+                  {dbPincodes.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={addServiceArea}
+                  disabled={!cascadePincode}
+                  className="px-6 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold text-sm rounded-xl hover:bg-slate-800 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                >
+                  + Add Area
+                </button>
+              </div>
+              
+              {formData.service_pincodes.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Selected Delivery Areas:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.service_pincodes.map(pin => (
+                      <div key={pin} className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-lg text-sm font-bold">
+                        Pincode: {pin}
+                        <button
+                          type="button"
+                          onClick={() => togglePincode(pin)}
+                          className="ml-1 w-5 h-5 flex items-center justify-center rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-800 transition-colors"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
