@@ -8,6 +8,36 @@ import { useTheme } from '@/components/ui/theme-provider'
 import { Sun, Moon, Menu, X, ArrowRight, User as UserIcon, ShoppingCart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+const LogoIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 40 40"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    {/* Bottom Left Block */}
+    <g className="origin-center group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 transition-transform duration-500 ease-out">
+      <path d="M15 19L23 23.5L15 28L7 23.5Z" className="fill-amber-400 dark:fill-amber-300" />
+      <path d="M7 23.5L15 28V37L7 32.5Z" className="fill-amber-600 dark:fill-amber-500" />
+      <path d="M23 23.5L15 28V37L23 32.5Z" className="fill-amber-500 dark:fill-amber-400" />
+    </g>
+
+    {/* Top Right Block */}
+    <g className="origin-center group-hover:translate-y-0.5 group-hover:translate-x-0.5 transition-transform duration-500 ease-out">
+      <path d="M27 7L35 11.5L27 16L19 11.5Z" className="fill-amber-300 dark:fill-amber-200" />
+      <path d="M19 11.5L27 16V25L19 20.5Z" className="fill-amber-500 dark:fill-amber-400" />
+      <path d="M35 11.5L27 16V25L35 20.5Z" className="fill-amber-400 dark:fill-amber-300" />
+    </g>
+    
+    {/* Center Block */}
+    <g className="origin-center group-hover:-translate-y-1 transition-transform duration-500 ease-out z-10">
+      <path d="M21 13L29 17.5L21 22L13 17.5Z" className="fill-amber-500 dark:fill-amber-400" />
+      <path d="M13 17.5L21 22V31L13 26.5Z" className="fill-amber-700 dark:fill-amber-600" />
+      <path d="M29 17.5L21 22V31L29 26.5Z" className="fill-amber-600 dark:fill-amber-500" />
+    </g>
+  </svg>
+);
+
 interface HeaderProps {
   user: {
     role?: UserRole
@@ -63,9 +93,13 @@ export default function Header({ user }: HeaderProps) {
         
         {/* Logo */}
         <div className="flex items-center gap-8 sm:gap-12">
-          <Link href="/" className="group flex items-center gap-2">
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white transition-colors">
-              Multiplying<span className="text-amber-500 group-hover:text-amber-600 transition-colors">Brics</span>
+          <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50">
+            <div className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 shrink-0">
+              <LogoIcon className="w-full h-full drop-shadow-sm" />
+              <div className="absolute inset-0 bg-amber-500/20 dark:bg-amber-400/15 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            </div>
+            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-colors">
+              Multiplying<span className="text-amber-500 dark:text-amber-400">Brics</span>
             </span>
           </Link>
 
