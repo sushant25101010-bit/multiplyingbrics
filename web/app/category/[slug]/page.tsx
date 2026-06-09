@@ -152,11 +152,11 @@ export default function CategoryPage() {
             
             <motion.button 
               onClick={() => handleSearch(material.id, material.name)}
-              className="w-full py-3.5 bg-slate-100 hover:bg-slate-950 dark:bg-slate-850 dark:hover:bg-white text-slate-900 hover:text-white dark:text-slate-200 dark:hover:text-slate-950 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 shadow-sm"
               whileTap={{ scale: 0.98 }}
             >
               <span>Check Prices</span> 
-              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight size={14} className="opacity-70 group-hover:translate-x-0.5 transition-transform" />
             </motion.button>
           </motion.div>
         ))}
