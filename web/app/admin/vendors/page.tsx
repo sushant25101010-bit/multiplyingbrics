@@ -106,7 +106,7 @@ export default function AdminVendorsPage() {
       ) : (
         <div className="space-y-8">
           {vendors.map((vendor) => (
-            <div key={vendor.id} className={`p-[clamp(20px,4vw,40px)] border-2 border-slate-100 rounded-[32px] shadow-xl shadow-slate-200/50 transition-colors duration-300 ${vendor.status === 'approved' ? 'bg-transparent hover:bg-slate-100/50 dark:hover:bg-slate-800/50' : 'bg-white'}`}>
+            <div key={vendor.id} className={`p-[clamp(20px,4vw,40px)] border-2 border-slate-100 rounded-[32px] shadow-xl shadow-slate-200/50 transition-colors duration-300 ${vendor.status === 'approved' ? 'bg-transparent' : 'bg-white'}`}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 {/* Business Info */}
                 <div>
@@ -148,16 +148,22 @@ export default function AdminVendorsPage() {
                 <div className="flex flex-col h-full">
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Verification Documents</h3>
                   <div className="flex flex-wrap gap-2 mb-auto">
-                    {vendor.documents.map((doc) => (
-                      <div 
-                        key={doc.id}
-                        className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center gap-2"
-                      >
-                        <span>📄</span>
-                        {doc.doc_type.toUpperCase()}
-                      </div>
-                    ))}
-                    {vendor.documents.length === 0 && <p className="text-slate-400 italic text-sm">No documents uploaded.</p>}
+                    {vendor.documents.map((doc) => {
+                      const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/vendor-documents/${doc.storage_path}`
+                      return (
+                        <a 
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          key={doc.id}
+                          className="px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex items-center gap-2 transition-colors cursor-pointer"
+                        >
+                          <span>📄</span>
+                          {doc.doc_type.toUpperCase()}
+                        </a>
+                      )
+                    })}
+                    {vendor.documents?.length === 0 && <p className="text-slate-400 italic text-sm">No documents uploaded.</p>}
                   </div>
 
                   <div className="flex gap-4 mt-8 pt-8 border-t border-slate-50">
