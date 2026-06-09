@@ -5,9 +5,12 @@ import Link from 'next/link'
 
 interface DashboardData {
   stats: {
-    listings: number
-    pincodes: number
-    enquiries: number
+    total_listings: number
+    active_listings: number
+    out_of_stock: number
+    open_enquiries: number
+    total_enquiries: number
+    pincodes_served: number
   }
   vendor_status: 'pending' | 'approved' | 'rejected'
 }
