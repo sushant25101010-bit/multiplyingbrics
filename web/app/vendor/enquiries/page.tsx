@@ -111,12 +111,12 @@ export default function VendorEnquiriesPage() {
     <main className="max-w-[clamp(320px,95vw,1000px)] mx-auto p-[clamp(16px,4vw,48px)]">
       <header className="mb-10 flex justify-between items-end flex-wrap gap-4">
         <div>
-          <h1 className="text-[clamp(24px,4vw,36px)] font-black text-slate-900 tracking-tight">
+          <h1 className="text-[clamp(24px,4vw,36px)] font-black text-slate-900 dark:text-white tracking-tight">
             Enquiries Inbox
           </h1>
-          <p className="text-slate-500 mt-2 font-medium">Manage leads from interested buyers.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage leads from interested buyers.</p>
         </div>
-        <div className="bg-slate-100 px-4 py-2 rounded-xl text-slate-600 font-bold text-sm">
+        <div className="bg-slate-100 dark:bg-slate-900 px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-sm">
           Total: {total}
         </div>
       </header>
@@ -129,10 +129,10 @@ export default function VendorEnquiriesPage() {
             <div 
               key={enquiry.id} 
               className={`p-[clamp(16px,3vw,32px)] border-2 rounded-3xl transition-all ${
-                enquiry.status === 'open' ? 'bg-white border-slate-200 shadow-xl shadow-slate-200/50' : 'bg-slate-50 border-slate-100 opacity-90'
+                enquiry.status === 'open' ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/50 opacity-90'
               }`}
             >
-              <div className="flex flex-col md:flex-row gap-6 mb-6 pb-6 border-b-2 border-slate-100">
+              <div className="flex flex-col md:flex-row gap-6 mb-6 pb-6 border-b-2 border-slate-100 dark:border-slate-800">
                 {/* Buyer Info */}
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
@@ -145,15 +145,15 @@ export default function VendorEnquiriesPage() {
                     </span>
                     <p className="text-xs font-bold text-slate-400">{new Date(enquiry.created_at).toLocaleDateString()} {new Date(enquiry.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                   </div>
-                  <h2 className="text-2xl font-black text-slate-900 mb-1">
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">
                     {enquiry.buyer?.full_name || 'Anonymous Buyer'}
                   </h2>
                   <div className="flex flex-col gap-1 mt-2">
-                    <p className="text-slate-600 text-sm font-bold flex items-center gap-2">
+                    <p className="text-slate-600 dark:text-slate-300 text-sm font-bold flex items-center gap-2">
                       <span className="text-lg">📞</span> {enquiry.buyer?.phone || 'No phone'}
                     </p>
                     {enquiry.buyer?.email && (
-                      <p className="text-slate-600 text-sm font-bold flex items-center gap-2">
+                      <p className="text-slate-600 dark:text-slate-300 text-sm font-bold flex items-center gap-2">
                         <span className="text-lg">✉️</span> {enquiry.buyer?.email}
                       </p>
                     )}
@@ -161,38 +161,38 @@ export default function VendorEnquiriesPage() {
                 </div>
 
                 {/* Product Info */}
-                <div className="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-200 flex gap-4">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                <div className="flex-1 bg-slate-50 dark:bg-slate-950 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 flex gap-4">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-800">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={displayImage} alt="Product" className="w-full h-full object-cover" />
                   </div>
                   <div>
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Interested In</p>
-                    <p className="font-bold text-slate-900 leading-tight mb-1">
+                    <p className="font-bold text-slate-900 dark:text-white leading-tight mb-1">
                       {enquiry.listing?.material.name}
                     </p>
-                    <p className="text-sm text-slate-600 font-bold mb-1">Qty: {enquiry.quantity_requested || 1} {enquiry.listing?.material.unit}</p>
-                    <p className="text-xs text-slate-500 font-medium">Deliver to: <span className="font-bold text-slate-700">{enquiry.pincode || 'Not specified'}</span></p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 font-bold mb-1">Qty: {enquiry.quantity_requested || 1} {enquiry.listing?.material.unit}</p>
+                    <p className="text-xs text-slate-500 font-medium">Deliver to: <span className="font-bold text-slate-700 dark:text-slate-200">{enquiry.pincode || 'Not specified'}</span></p>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-8 pl-4 border-l-4 border-slate-200">
+              <div className="mb-8 pl-4 border-l-4 border-slate-200 dark:border-slate-800">
                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Message from buyer</p>
-                <p className="text-slate-700 font-medium text-lg italic leading-relaxed">"{enquiry.message}"</p>
+                <p className="text-slate-700 dark:text-slate-300 font-medium text-lg italic leading-relaxed">"{enquiry.message}"</p>
               </div>
 
               <div className="flex flex-wrap gap-3">
                 <button 
                   onClick={() => updateStatus(enquiry.id, 'responded')}
-                  className="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-black hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20 disabled:opacity-50 disabled:shadow-none"
+                  className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-black hover:bg-slate-800 dark:hover:bg-slate-200 transition-all shadow-md shadow-slate-900/20 disabled:opacity-50 disabled:shadow-none"
                   disabled={enquiry.status === 'responded' || enquiry.status === 'closed'}
                 >
                   Mark as Responded
                 </button>
                 <button 
                   onClick={() => updateStatus(enquiry.id, 'closed')}
-                  className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-50 hover:border-slate-300 transition-all disabled:opacity-50"
+                  className="px-6 py-3 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all disabled:opacity-50"
                   disabled={enquiry.status === 'closed'}
                 >
                   Close Lead
@@ -211,10 +211,10 @@ export default function VendorEnquiriesPage() {
         })}
 
         {enquiries.length === 0 && !loading && (
-          <div className="p-20 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
+          <div className="p-20 text-center bg-slate-50 dark:bg-slate-900/20 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800">
             <span className="text-4xl mb-4 block">📥</span>
-            <p className="text-slate-500 font-bold text-lg">Your inbox is empty.</p>
-            <p className="text-slate-400">New leads from buyers will appear here.</p>
+            <p className="text-slate-500 dark:text-slate-400 font-bold text-lg">Your inbox is empty.</p>
+            <p className="text-slate-400 dark:text-slate-500">New leads from buyers will appear here.</p>
           </div>
         )}
 
@@ -222,7 +222,7 @@ export default function VendorEnquiriesPage() {
           <div className="mt-8 text-center">
             <button 
               onClick={loadMore}
-              className="px-8 py-3 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-full hover:border-slate-300 hover:bg-slate-50 transition-all shadow-sm"
+              className="px-8 py-3 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-full hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
             >
               Load Older Leads
             </button>
