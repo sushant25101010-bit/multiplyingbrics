@@ -195,7 +195,7 @@ function EditListingContent() {
 
   const selectedMaterial = materials.find(m => m.id === formData.material_id)
   const categoryFallbackImage = categoryImages[categories.find(c => c.id === selectedCategory)?.slug || ''] || 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80'
-  const displayImage = selectedMaterial?.image_url || categoryFallbackImage
+  const displayImage = (selectedMaterial?.image_url && selectedMaterial.image_url !== 'null' && selectedMaterial.image_url.trim() !== '') ? selectedMaterial.image_url : categoryFallbackImage
 
   const togglePincode = (pincode: string) => {
     setFormData(prev => {
@@ -289,6 +289,7 @@ function EditListingContent() {
               src={displayImage} 
               alt="Product Preview" 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              onError={(e) => { e.currentTarget.src = categoryFallbackImage }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent flex items-end p-4">
               <p className="text-white font-black drop-shadow-md">

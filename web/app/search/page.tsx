@@ -24,6 +24,13 @@ function SearchContent() {
   const [enquiryMsg, setEnquiryMsg] = useState('')
   
   const [cartIds, setCartIds] = useState<string[]>([])
+  
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null)
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   useEffect(() => {
     const loadCart = () => {
@@ -46,14 +53,14 @@ function SearchContent() {
       
       if (index > -1) {
         savedCart.splice(index, 1)
-        alert('Removed from cart!')
+        showToast('Removed from cart!', 'info')
       } else {
         savedCart.push({
           listingId: listing.id,
           listing,
           quantity: 1
         })
-        alert('Added to cart!')
+        showToast('Added to cart!', 'success')
       }
       
       localStorage.setItem('mb-cart', JSON.stringify(savedCart))
@@ -102,7 +109,7 @@ function SearchContent() {
       }
       if (res.ok) {
         setSavedVendorIds(prev => [...prev, vendorId])
-        alert('Vendor saved!')
+        showToast('Vendor saved!', 'success')
       }
     } catch (err) {
       console.error('Save failed', err)
@@ -130,7 +137,7 @@ function SearchContent() {
         return
       }
       if (res.ok) {
-        alert('Enquiry sent successfully!')
+        showToast('Enquiry sent successfully!', 'success')
         setEnquiryListing(null)
         setEnquiryMsg('')
       }
@@ -184,6 +191,25 @@ function SearchContent() {
 
   return (
     <main className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 bg-white dark:bg-[#030712]">
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+            className={`fixed bottom-8 left-1/2 z-[100] px-6 py-3 rounded-full shadow-2xl font-bold text-sm flex items-center gap-2 ${
+              toast.type === 'success' ? 'bg-emerald-500 text-white' : 
+              toast.type === 'error' ? 'bg-red-500 text-white' : 
+              'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+            }`}
+          >
+            {toast.type === 'success' && <Sparkles size={16} />}
+            <span>{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Enquiry Modal */}
       <AnimatePresence>
         {enquiryListing && (
@@ -361,7 +387,7 @@ function SearchContent() {
                 
                 <Link 
                   href={`/vendor/${listing.vendor_id}`}
-                  className="min-h-[46px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5"
+                  className="min-h-[46px] px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5"
                 >
                   <span>Vendor Profile</span>
                   <ArrowRight size={14} className="opacity-70" />

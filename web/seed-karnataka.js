@@ -55,13 +55,16 @@ async function seedData() {
       return;
     }
     
+    console.log("Cleaning up previous incorrect 'Unknown' records...");
+    await supabase.from('indian_locations').delete().eq('state_name', 'Karnataka').eq('district_name', 'Unknown');
+
     console.log("Upserting Karnataka records to prevent duplicates and preserve existing records...");
     
     // Map to our database schema
     const insertData = karnatakaRecords.map(r => ({
       state_name: 'Karnataka',
-      district_name: r.district_name || r.District || r.district || r.DistrictName || 'Unknown',
-      office_name: r.office_name || r.OfficeName || r.Name || r.office || 'Unknown',
+      district_name: r.districtName || r.district_name || r.District || r.district || r.DistrictName || 'Unknown',
+      office_name: r.officeName || r.office_name || r.OfficeName || r.Name || r.office || 'Unknown',
       pincode: (r.pincode || r.Pincode || r.pin || r.Pincode || '').toString()
     }));
 
