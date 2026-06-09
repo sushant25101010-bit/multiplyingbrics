@@ -159,10 +159,10 @@ function EditListingContent() {
   return (
     <main className="max-w-[clamp(320px,90vw,800px)] mx-auto p-[clamp(16px,4vw,48px)]">
       <header className="mb-10">
-        <h1 className="text-[clamp(24px,4vw,36px)] font-black text-slate-900 tracking-tight">
+        <h1 className="text-[clamp(24px,4vw,36px)] font-black text-slate-900 dark:text-white tracking-tight">
           {listingId ? 'Edit Listing' : 'Add New Listing'}
         </h1>
-        <p className="text-slate-500 mt-2">Streamlined product listing with precise control over your stock and delivery areas.</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-2">Streamlined product listing with precise control over your stock and delivery areas.</p>
       </header>
 
       {error && (
@@ -171,12 +171,12 @@ function EditListingContent() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border-2 border-slate-100">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-transparent p-8 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border-2 border-slate-100 dark:border-slate-800">
         
         {/* Step 1: Category Selection */}
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">1</span>
+            <span className="w-5 h-5 rounded-full bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center text-[10px]">1</span>
             Select Category
           </label>
           <select
@@ -185,7 +185,7 @@ function EditListingContent() {
               setSelectedCategory(e.target.value)
               setFormData({ ...formData, material_id: '' })
             }}
-            className="w-full px-4 py-4 min-h-[48px] bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all disabled:opacity-50"
+            className="w-full px-4 py-4 min-h-[48px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[16px] font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-slate-900/5 dark:focus:ring-slate-100/5 outline-none transition-all disabled:opacity-50"
             required
             disabled={!!listingId}
           >
@@ -200,13 +200,13 @@ function EditListingContent() {
         {selectedCategory && (
           <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">2</span>
+              <span className="w-5 h-5 rounded-full bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center text-[10px]">2</span>
               Select Specific Product
             </label>
             <select
               value={formData.material_id}
               onChange={(e) => setFormData({ ...formData, material_id: e.target.value })}
-              className="w-full px-4 py-4 min-h-[48px] bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all disabled:opacity-50"
+              className="w-full px-4 py-4 min-h-[48px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[16px] font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-slate-900/5 dark:focus:ring-slate-100/5 outline-none transition-all disabled:opacity-50"
               required
               disabled={!!listingId}
             >
@@ -220,7 +220,7 @@ function EditListingContent() {
 
         {/* Step 3: Auto Product Image */}
         {selectedCategory && (
-          <div className="mt-4 rounded-2xl overflow-hidden h-48 w-full relative border-2 border-slate-100 shadow-inner group animate-in fade-in slide-in-from-top-2">
+          <div className="mt-4 rounded-2xl overflow-hidden h-48 w-full relative border-2 border-slate-100 dark:border-slate-800 shadow-inner group animate-in fade-in slide-in-from-top-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={displayImage} 
@@ -237,9 +237,9 @@ function EditListingContent() {
 
         {/* Step 4: Specific Listing Details */}
         {formData.material_id && (
-          <div className="pt-8 mt-8 border-t-2 border-slate-100 space-y-8 animate-in fade-in slide-in-from-top-4">
+          <div className="pt-8 mt-8 border-t-2 border-slate-100 dark:border-slate-800 space-y-8 animate-in fade-in slide-in-from-top-4">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-6">
-              <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">3</span>
+              <span className="w-5 h-5 rounded-full bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center text-[10px]">3</span>
               Listing Parameters
             </label>
 
@@ -254,7 +254,7 @@ function EditListingContent() {
                     placeholder="0.00"
                     value={formData.price_per_unit}
                     onChange={(e) => setFormData({ ...formData, price_per_unit: e.target.value })}
-                    className="w-full pl-10 pr-4 py-4 min-h-[48px] bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-4 min-h-[48px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[16px] font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-slate-900/5 dark:focus:ring-slate-100/5 outline-none transition-all"
                     required
                   />
                 </div>
@@ -266,7 +266,7 @@ function EditListingContent() {
                   type="text"
                   value={selectedMaterial?.unit || ''}
                   disabled
-                  className="w-full px-4 py-4 min-h-[48px] bg-slate-100 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-500 cursor-not-allowed"
+                  className="w-full px-4 py-4 min-h-[48px] bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[16px] font-bold text-slate-500 dark:text-slate-400 cursor-not-allowed"
                 />
               </div>
 
@@ -278,7 +278,7 @@ function EditListingContent() {
                   placeholder="e.g., 100"
                   value={formData.available_stock}
                   onChange={(e) => setFormData({ ...formData, available_stock: e.target.value })}
-                  className="w-full px-4 py-4 min-h-[48px] bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-bold text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all"
+                  className="w-full px-4 py-4 min-h-[48px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[16px] font-bold text-slate-900 dark:text-white focus:ring-4 focus:ring-slate-900/5 dark:focus:ring-slate-100/5 outline-none transition-all"
                   required
                 />
               </div>
@@ -288,18 +288,18 @@ function EditListingContent() {
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, delivery_availability: !formData.delivery_availability })}
-                    className={`w-12 h-6 rounded-full relative transition-colors ${formData.delivery_availability ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                    className={`w-12 h-6 rounded-full relative transition-colors ${formData.delivery_availability ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}
                   >
                     <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-all ${formData.delivery_availability ? 'left-6.5 translate-x-[22px]' : 'left-0.5'}`} />
                   </button>
-                  <span className="text-sm font-bold text-slate-700">Delivery Available</span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Delivery Available</span>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
               <label className="text-xs font-black uppercase tracking-widest text-slate-500">Service Pincodes</label>
-              <p className="text-xs text-slate-500 mb-2">Select the areas you want to serve for this specific product. These are pulled from your master vendor profile.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Select the areas you want to serve for this specific product. These are pulled from your master vendor profile.</p>
               
               {vendorPincodes.length > 0 ? (
                 <div className="flex flex-wrap gap-3">
@@ -312,18 +312,18 @@ function EditListingContent() {
                         onClick={() => togglePincode(vp.pincode)}
                         className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
                           isSelected 
-                            ? 'bg-slate-900 border-slate-900 text-white shadow-md' 
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-400'
+                            ? 'bg-slate-900 border-slate-900 text-white shadow-md dark:bg-slate-100 dark:border-slate-100 dark:text-slate-900' 
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500'
                         }`}
                       >
                         {vp.area_name} ({vp.pincode})
-                        {isSelected && <span className="ml-2 text-emerald-400">✓</span>}
+                        {isSelected && <span className="ml-2 text-emerald-400 dark:text-emerald-600">✓</span>}
                       </button>
                     )
                   })}
                 </div>
               ) : (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm font-medium">
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-800 dark:text-amber-400 text-sm font-medium">
                   You haven't added any serviceable pincodes to your vendor profile yet. 
                 </div>
               )}
@@ -335,25 +335,37 @@ function EditListingContent() {
                 placeholder="E.g., Minimum order of 50 bags required for free delivery."
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-[16px] font-medium text-slate-900 focus:ring-4 focus:ring-slate-900/5 outline-none transition-all min-h-[100px]"
+                className="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[16px] font-medium text-slate-900 dark:text-white focus:ring-4 focus:ring-slate-900/5 dark:focus:ring-slate-100/5 outline-none transition-all min-h-[100px]"
               />
+            </div>
+
+            <div className="space-y-2 flex flex-col justify-center pt-4">
+              <label className="flex items-center gap-3 cursor-pointer p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-all w-fit">
+                <input
+                  type="checkbox"
+                  checked={formData.in_stock}
+                  onChange={(e) => setFormData({ ...formData, in_stock: e.target.checked })}
+                  className="w-5 h-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:checked:bg-slate-100"
+                />
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Currently available and in stock</span>
+              </label>
             </div>
           </div>
         )}
 
         {/* Submit Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t-2 border-slate-100">
+        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t-2 border-slate-100 dark:border-slate-800">
           <button
             type="submit"
             disabled={submitting || !formData.material_id}
-            className="flex-1 py-4 min-h-[48px] bg-slate-900 text-white font-black text-[16px] rounded-2xl hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all shadow-lg shadow-slate-900/20"
+            className="flex-1 py-4 min-h-[48px] bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-black text-[16px] rounded-2xl hover:bg-slate-800 dark:hover:bg-white disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-all shadow-lg shadow-slate-900/20 dark:shadow-none"
           >
             {submitting ? 'Saving Listing...' : 'Save Product Listing'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 py-4 min-h-[48px] bg-white border border-slate-200 text-slate-500 font-bold text-[16px] rounded-2xl hover:bg-slate-50 transition-all"
+            className="flex-1 py-4 min-h-[48px] bg-white dark:bg-transparent border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold text-[16px] rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
           >
             Cancel
           </button>
