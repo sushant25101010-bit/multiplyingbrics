@@ -34,7 +34,7 @@ export async function GET(request: Request) {
         listing:listings(
           service_pincodes,
           price_per_unit,
-          material:materials(name, unit, image_url)
+          material:materials(name, unit, image_url, category:categories(name))
         )
       `, { count: 'exact' })
       .eq('vendor_id', vendor.id)

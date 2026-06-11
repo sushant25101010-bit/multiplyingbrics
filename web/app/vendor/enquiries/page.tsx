@@ -21,6 +21,7 @@ interface EnquiryData {
       name: string
       unit: string
       image_url: string | null
+      category?: { name: string } | null
     }
   } | null
 }
@@ -128,6 +129,7 @@ export default function VendorEnquiriesPage() {
           return (
             <div 
               key={enquiry.id} 
+              id={`enquiry-${enquiry.id}`}
               className={`p-[clamp(16px,3vw,32px)] border-2 rounded-3xl transition-all ${
                 enquiry.status === 'open' ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/50 opacity-90'
               }`}
@@ -197,14 +199,87 @@ export default function VendorEnquiriesPage() {
                 >
                   Close Lead
                 </button>
-                {enquiry.buyer?.phone && (
-                  <a 
-                    href={`tel:${enquiry.buyer?.phone}`}
-                    className="px-6 py-3 bg-emerald-50 text-emerald-700 border-2 border-emerald-100 rounded-xl text-sm font-black hover:bg-emerald-100 transition-all flex items-center ml-auto"
-                  >
-                    Call Buyer
-                  </a>
-                )}
+                <div className="flex items-center gap-2 ml-auto flex-wrap justify-end">
+                  {enquiry.buyer?.email && (
+                    <a 
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${enquiry.buyer?.email}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-3 bg-[#EA4335] text-white rounded-xl text-sm font-bold hover:bg-[#D93025] transition-all flex items-center gap-2 shadow-md shadow-[#EA4335]/20"
+                    >
+                      <span className="text-lg">✉️</span> Email Customer
+                    </a>
+                  )}
+                  {enquiry.buyer?.phone && (
+                    <a 
+                      href={`tel:${enquiry.buyer?.phone}`}
+                      className="px-4 py-3 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border-2 border-indigo-100 dark:border-indigo-800/50 rounded-xl text-sm font-black hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all flex items-center gap-2"
+                    >
+                      <span className="text-lg">📞</span> Call Customer
+                    </a>
+                  )}
+                  {(() => {
+                    const phone = enquiry.buyer?.phone;
+                    const cleanedPhone = phone ? phone.replace(/\D/g, '') : '';
+                    let waPhone = cleanedPhone;
+                    if (waPhone.startsWith('0')) waPhone = '91' + waPhone.substring(1);
+                    else if (waPhone.length === 10) waPhone = '91' + waPhone;
+
+                    const customerName = enquiry.buyer?.full_name || 'Customer';
+                    const productName = enquiry.listing?.material?.name || 'Product';
+                    const category = enquiry.listing?.material?.category?.name || 'Category';
+                    const qty = `${enquiry.quantity_requested || 1} ${enquiry.listing?.material?.unit || ''}`;
+                    const address = 'Not specified';
+                    const pincode = enquiry.pincode || 'Not specified';
+                    const date = new Date(enquiry.created_at).toLocaleDateString();
+                    
+                    const message = `Hello ${customerName},
+
+Thank you for your enquiry through Multiplying Brics.
+
+Order / Enquiry Details:
+
+Product: ${productName}
+Category: ${category}
+Quantity: ${qty}
+Delivery Address: ${address}
+Pincode: ${pincode}
+Date: ${date}
+
+We have received your enquiry and are reviewing it.
+
+Can you please confirm:
+
+1. Delivery Address
+2. Required Delivery Date
+3. Any additional requirements
+
+We will share pricing, delivery timeline and availability shortly.
+
+Regards,
+Vendor
+Multiplying Brics`;
+
+                    return (
+                      <a 
+                        href={waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent(message)}` : '#'}
+                        target={waPhone ? "_blank" : undefined}
+                        rel={waPhone ? "noopener noreferrer" : undefined}
+                        className={`px-6 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-2 ${
+                          waPhone 
+                            ? 'bg-[#25D366] text-white hover:bg-[#128C7E] shadow-md shadow-[#25D366]/20' 
+                            : 'bg-[#25D366] text-white opacity-50 cursor-not-allowed'
+                        }`}
+                        onClick={(e) => {
+                          if (!waPhone) e.preventDefault();
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" /></svg>
+                        {waPhone ? 'Contact Customer' : 'No phone number available'}
+                      </a>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           )
