@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Material } from '@/lib/types'
-import { Package, MapPin, Search } from 'lucide-react'
+import { Package, MapPin, Search, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 interface SearchBarProps {
@@ -15,6 +15,73 @@ export default function SearchBar({ materials }: SearchBarProps) {
   const [selectedMaterial, setSelectedMaterial] = useState('')
   const [pincode, setPincode] = useState('')
   const [focusInput, setFocusInput] = useState<'material' | 'pincode' | null>(null)
+  const [isLocating, setIsLocating] = useState(false)
+  const [locationText, setLocationText] = useState('')
+  const [locationError, setLocationError] = useState('')
+
+  useEffect(() => {
+    const cachedPincode = localStorage.getItem('mb_cached_pincode')
+    const cachedLocation = localStorage.getItem('mb_cached_location')
+    if (cachedPincode && cachedLocation) {
+      setPincode(cachedPincode)
+      setLocationText(cachedLocation)
+    }
+  }, [])
+
+  const handleUseLocation = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser')
+      return
+    }
+
+    setIsLocating(true)
+    setLocationError('')
+    setLocationText('')
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          const data = await res.json()
+          
+          if (data && data.address && data.address.postcode) {
+            const code = data.address.postcode
+            // Validate 6 digit Indian pincode
+            if (/^\d{6}$/.test(code)) {
+              setPincode(code)
+              const area = data.address.suburb || data.address.neighbourhood || data.address.city_district || data.address.city || ''
+              const city = data.address.city || data.address.state_district || ''
+              const text = area && city ? `📍 ${area}, ${city} - ${code}` : `📍 ${code}`
+              setLocationText(text)
+              setLocationError('')
+              
+              localStorage.setItem('mb_cached_pincode', code)
+              localStorage.setItem('mb_cached_location', text)
+            } else {
+              setLocationError('Could not detect a valid 6-digit Indian pincode')
+            }
+          } else {
+            setLocationError('Could not detect pincode for this location')
+          }
+        } catch (error) {
+          setLocationError('Failed to fetch location data')
+        } finally {
+          setIsLocating(false)
+        }
+      },
+      (error) => {
+        setIsLocating(false)
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError('Location access denied. Please enter manually.')
+        } else {
+          setLocationError('Unable to retrieve your location.')
+        }
+      },
+      { timeout: 10000 }
+    )
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,10 +94,11 @@ export default function SearchBar({ materials }: SearchBarProps) {
   }
 
   return (
-    <form 
-      onSubmit={handleSearch}
-      className="flex flex-col md:flex-row gap-4 p-3 bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 rounded-[24px] sm:rounded-[32px] shadow-xl dark:shadow-2xl dark:shadow-slate-950/80 backdrop-blur-xl transition-all duration-300"
-    >
+    <div className="w-full flex flex-col items-center gap-3">
+      <form 
+        onSubmit={handleSearch}
+        className="w-full flex flex-col md:flex-row gap-4 p-3 bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 rounded-[24px] sm:rounded-[32px] shadow-xl dark:shadow-2xl dark:shadow-slate-950/80 backdrop-blur-xl transition-all duration-300"
+      >
       {/* Material Selector */}
       <div 
         className={`flex-1 flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-200 border ${
@@ -74,7 +142,24 @@ export default function SearchBar({ materials }: SearchBarProps) {
       >
         <MapPin size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
         <div className="flex-1 flex flex-col items-start gap-0.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Pincode</label>
+          <div className="flex w-full justify-between items-center">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Pincode</label>
+            <button
+              type="button"
+              onClick={handleUseLocation}
+              disabled={isLocating}
+              className="text-[10px] font-bold text-amber-500 hover:text-amber-600 disabled:opacity-50 flex items-center gap-1 transition-colors"
+            >
+              {isLocating ? (
+                <>
+                  <Loader2 size={10} className="animate-spin" />
+                  Detecting...
+                </>
+              ) : (
+                '📍 Use My Location'
+              )}
+            </button>
+          </div>
           <input
             type="tel"
             placeholder="6-digit pincode"
@@ -100,5 +185,13 @@ export default function SearchBar({ materials }: SearchBarProps) {
         <Search size={16} strokeWidth={2.5} />
       </motion.button>
     </form>
+    
+    {(locationText || locationError) && (
+      <div className="text-sm font-medium">
+        {locationText && <span className="text-emerald-600 dark:text-emerald-400">{locationText}</span>}
+        {locationError && <span className="text-red-500 dark:text-red-400">{locationError}</span>}
+      </div>
+    )}
+    </div>
   )
 }
