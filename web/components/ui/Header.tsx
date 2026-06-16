@@ -61,17 +61,13 @@ export default function Header({ user }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 dark:border-slate-800/40 bg-white/75 dark:bg-[#030712]/75 backdrop-blur-xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-        
+
         {/* Logo */}
         <div className="flex items-center gap-8 sm:gap-12">
           <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50">
-            <div className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 shrink-0 overflow-hidden rounded-xl">
-              <Image src="/images/adaptive-icon.png" alt="Multiplying Brics Logo" width={40} height={40} className="w-full h-full object-cover scale-[1.2] drop-shadow-sm" />
-              <div className="absolute inset-0 bg-amber-500/20 dark:bg-amber-400/15 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative flex items-center justify-center h-10 sm:h-14 shrink-0">
+              <Image src="/images/MultiplyingBrics.png" alt="Multiplying Brics Logo" width={300} height={80} className="w-auto h-full object-contain drop-shadow-sm" />
             </div>
-            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white transition-colors">
-              Multiplying<span className="text-amber-500 dark:text-amber-400">Brics</span>
-            </span>
           </Link>
 
           {/* Desktop Nav Links */}
@@ -79,14 +75,14 @@ export default function Header({ user }: HeaderProps) {
             {navLinks.map((link) => {
               const isActive = pathname === link.href
               return (
-                <Link 
-                  key={link.href} 
+                <Link
+                  key={link.href}
                   href={link.href}
                   className="relative px-1 py-2 text-sm font-semibold transition-colors duration-200 text-slate-650 dark:text-slate-350 hover:text-slate-950 dark:hover:text-white"
                 >
                   {link.name}
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="navUnderline"
                       className="absolute bottom-0 left-0 right-0 h-[2px] bg-amber-500 rounded-full"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
@@ -100,7 +96,7 @@ export default function Header({ user }: HeaderProps) {
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
-          
+
           {/* Theme Toggle Button */}
           <motion.button
             onClick={toggleTheme}
@@ -152,7 +148,7 @@ export default function Header({ user }: HeaderProps) {
           <div className="hidden sm:flex items-center gap-3">
             {user ? (
               <>
-                <Link 
+                <Link
                   href={currentAccountLink.href}
                   className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2 shadow-lg shadow-slate-900/10 dark:shadow-white/5"
                 >
@@ -168,7 +164,7 @@ export default function Header({ user }: HeaderProps) {
                 </button>
               </>
             ) : (
-              <Link 
+              <Link
                 href="/auth"
                 className="px-6 py-2.5 bg-slate-150 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5"
               >
@@ -178,7 +174,7 @@ export default function Header({ user }: HeaderProps) {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <motion.button 
+          <motion.button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
             whileTap={{ scale: 0.95 }}
@@ -193,7 +189,7 @@ export default function Header({ user }: HeaderProps) {
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -204,29 +200,27 @@ export default function Header({ user }: HeaderProps) {
               {navLinks.map((link) => {
                 const isActive = pathname === link.href
                 return (
-                  <Link 
-                    key={link.href} 
+                  <Link
+                    key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-4 py-2.5 rounded-xl text-base font-bold transition-colors ${
-                      isActive 
-                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' 
-                        : 'text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white'
-                    }`}
+                    className={`block px-4 py-2.5 rounded-xl text-base font-bold transition-colors ${isActive
+                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                      : 'text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white'
+                      }`}
                   >
                     {link.name}
                   </Link>
                 )
               })}
 
-              <Link 
+              <Link
                 href="/cart"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-base font-bold transition-colors ${
-                  pathname === '/cart'
-                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                    : 'text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white'
-                }`}
+                className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-base font-bold transition-colors ${pathname === '/cart'
+                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                  : 'text-slate-650 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white'
+                  }`}
               >
                 <span className="flex items-center gap-2">
                   <ShoppingCart size={18} />
@@ -238,13 +232,13 @@ export default function Header({ user }: HeaderProps) {
                   </span>
                 )}
               </Link>
-              
+
               <hr className="border-slate-100 dark:border-slate-800 my-2" />
 
               {/* Login/Account for Mobile */}
               {user ? (
                 <>
-                  <Link 
+                  <Link
                     href={currentAccountLink.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center justify-between w-full px-4 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-base font-bold"
@@ -263,7 +257,7 @@ export default function Header({ user }: HeaderProps) {
                   </button>
                 </>
               ) : (
-                <Link 
+                <Link
                   href="/auth"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center w-full px-4 py-3 bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl text-base font-bold"
