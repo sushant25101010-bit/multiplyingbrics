@@ -65,8 +65,8 @@ export default function Header({ user }: HeaderProps) {
         {/* Logo */}
         <div className="flex items-center gap-8 sm:gap-12">
           <Link href="/" className="group flex items-center gap-2.5 sm:gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50">
-            <div className="relative flex items-center justify-center h-10 sm:h-14 shrink-0">
-              <Image src="/images/MultiplyingBrics.png" alt="Multiplying Brics Logo" width={300} height={80} className="w-auto h-full object-contain drop-shadow-sm" />
+            <div className="relative flex items-center justify-center h-12 sm:h-16 shrink-0">
+              <Image src="/images/MultiplyingBrics.png" alt="Multiplying Brics Logo" width={350} height={100} className="w-auto h-full object-contain drop-shadow-sm" />
             </div>
           </Link>
 
